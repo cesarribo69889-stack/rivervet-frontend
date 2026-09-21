@@ -1,0 +1,15 @@
+Coloca aquí el logo oficial con el nombre exacto:
+
+    public/logo.png
+
+Es la imagen del perrito y el gato con el texto "Rivervet · Centro
+Veterinario". El componente src/components/LogoRivervet.vue la usa en la
+cabecera, el panel lateral, el login y el pie de página.
+
+Mientras el archivo no exista, el componente dibuja una versión de respaldo
+en SVG con los mismos colores de la marca, así que nada se rompe.
+
+Colores tomados del logo (definidos en src/assets/styles/_tokens.scss):
+  · Azul marino  #14295E
+  · Turquesa     #23C3A5
+  · Celeste ojos #5F9FE0

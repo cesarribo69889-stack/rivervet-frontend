@@ -1,0 +1,6 @@
+// Hoja de estilos global de Rivervet.
+// El orden importa: primero los tokens de color, luego la base y al final
+// los componentes (que usan ambos).
+@use 'tokens';
+@use 'base';
+@use 'componentes';

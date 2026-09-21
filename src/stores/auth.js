@@ -1,63 +1,156 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import api from '../services/api'
-import { isTokenExpired } from '../utils/jwt'
+import { computed, ref } from 'vue'
+import servicioAuth from '../services/auth'
+import { alCambiarToken, guardarToken, haySesionPrevia, limpiarToken, obtenerToken } from '../services/sesion'
+import { GRUPOS, ROLES } from '../constantes'
 
-// Store de autenticación.
-// Centraliza el token y los datos del usuario para que ningún componente
-// tenga que leer localStorage por su cuenta.
+// ═══════════════════════════════════════════════════════════════════
+//  Estado de la sesión.
+//
+//  El access token NO se guarda en localStorage (ver services/sesion.js):
+//  vive en memoria y dura 15 minutos. Al recargar la página se recupera la
+//  sesión con POST /api/auth/refresh, que se autentica con la cookie
+//  httpOnly rv_refresh.
+// ═══════════════════════════════════════════════════════════════════
 export const useAuthStore = defineStore('auth', () => {
-  // --- Estado ---
-  // Inicializamos desde localStorage para que la sesión sobreviva a un refresh:
-  // el estado de Pinia vive en memoria y se pierde al recargar la página.
-  const token = ref(localStorage.getItem('token'))
-  const user = ref(null)
+  const token = ref(obtenerToken())
+  const usuario = ref(null)
+  const inicializando = ref(false)
 
-  // --- Getters ---
-  // Tener token no basta: también tiene que seguir vigente.
-  const isAuthenticated = computed(
-    () => Boolean(token.value) && !isTokenExpired(token.value)
-  )
+  // Si el interceptor de api.js refresca o limpia el token, el store se entera.
+  alCambiarToken((nuevo) => {
+    token.value = nuevo
+    if (!nuevo) {
+      usuario.value = null
+    }
+  })
 
-  // --- Acciones ---
+  const estaAutenticado = computed(() => Boolean(token.value) && Boolean(usuario.value))
+  const rol = computed(() => usuario.value?.rol ?? null)
+  const nombre = computed(() => usuario.value?.nombre ?? '')
+  const esAdmin = computed(() => rol.value === ROLES.ADMIN)
+  const esVeterinario = computed(() => rol.value === ROLES.VETERINARIO)
+  const esCliente = computed(() => rol.value === ROLES.CLIENTE)
+  const esPersonal = computed(() => GRUPOS.PERSONAL.includes(rol.value))
 
-  // Guarda el token en el estado y en localStorage a la vez,
-  // para que las dos fuentes nunca queden desincronizadas.
-  function setToken(newToken) {
-    token.value = newToken
-    if (newToken) {
-      localStorage.setItem('token', newToken)
-    } else {
-      localStorage.removeItem('token')
+  /** ¿El rol actual está entre los permitidos? Sin lista, basta con tener sesión. */
+  function puede(roles) {
+    if (!roles || roles.length === 0) return estaAutenticado.value
+    return estaAutenticado.value && roles.includes(rol.value)
+  }
+
+  // ── Refresco preventivo ──
+  // El token dura `expiraEn` segundos. Lo renovamos un minuto antes para que
+  // nadie se quede a medias de un formulario por un 401.
+  let temporizador = null
+
+  function programarRefresco(expiraEn) {
+    cancelarRefresco()
+    const margen = Math.max((expiraEn ?? 900) - 60, 30) * 1000
+    temporizador = setTimeout(async () => {
+      try {
+        const sesion = await servicioAuth.refrescar()
+        aplicarSesion(sesion)
+      } catch {
+        // El refresh venció o fue revocado: el siguiente 401 llevará al login.
+        limpiarSesionLocal()
+      }
+    }, margen)
+  }
+
+  function cancelarRefresco() {
+    if (temporizador) {
+      clearTimeout(temporizador)
+      temporizador = null
     }
   }
 
-  // TODO: ajustar el endpoint y los nombres de campo a los de tu backend.
-  async function login(credentials) {
-    const { data } = await api.post('/auth/login', credentials)
-    setToken(data.token)
-    user.value = data.user ?? null
-    return data
+  function aplicarSesion(sesion) {
+    guardarToken(sesion.accessToken)
+    usuario.value = sesion.usuario
+    programarRefresco(sesion.expiraEn)
   }
 
-  function logout() {
-    setToken(null)
-    user.value = null
+  function limpiarSesionLocal() {
+    cancelarRefresco()
+    limpiarToken()
+    usuario.value = null
   }
 
-  // Recupera el perfil del usuario con el token actual.
-  // Útil tras un refresh: hay token pero `user` está vacío.
-  async function fetchUser() {
-    const { data } = await api.get('/auth/me')
-    user.value = data
-    return data
+  // ── Acciones ──
+
+  async function login(credenciales) {
+    const sesion = await servicioAuth.login(credenciales)
+    aplicarSesion(sesion)
+    return sesion
   }
 
-  // Al arrancar la app: si quedó un token vencido de una sesión anterior,
-  // lo limpiamos aquí en vez de esperar a que el backend lo rechace.
-  if (token.value && isTokenExpired(token.value)) {
-    logout()
+  async function logout() {
+    try {
+      // Revoca el refresh token en el servidor y borra las cookies.
+      await servicioAuth.logout()
+    } catch {
+      // Aunque falle (sin red, cookie vencida), localmente cerramos igual.
+    } finally {
+      limpiarSesionLocal()
+    }
   }
 
-  return { token, user, isAuthenticated, setToken, login, logout, fetchUser }
+  /**
+   * Se llama una sola vez al arrancar la app (y antes de la primera
+   * navegación). Si quedó una cookie de sesión, intenta recuperarla.
+   */
+  let arranque = null
+
+  function inicializar() {
+    arranque ??= (async () => {
+      if (!haySesionPrevia()) return null
+
+      inicializando.value = true
+      try {
+        const sesion = await servicioAuth.refrescar()
+        aplicarSesion(sesion)
+        return sesion
+      } catch {
+        limpiarSesionLocal()
+        return null
+      } finally {
+        inicializando.value = false
+      }
+    })()
+
+    return arranque
+  }
+
+  /** Vuelve a leer el perfil (tras cambiar datos o el rol desde otra sesión). */
+  async function recargarUsuario() {
+    usuario.value = await servicioAuth.yo()
+    return usuario.value
+  }
+
+  async function cambiarPassword(datos) {
+    const resultado = await servicioAuth.cambiarPassword(datos)
+    // El backend cierra TODAS las sesiones al cambiar la contraseña.
+    limpiarSesionLocal()
+    return resultado
+  }
+
+  return {
+    token,
+    usuario,
+    inicializando,
+    estaAutenticado,
+    rol,
+    nombre,
+    esAdmin,
+    esVeterinario,
+    esCliente,
+    esPersonal,
+    puede,
+    login,
+    logout,
+    inicializar,
+    recargarUsuario,
+    cambiarPassword
+  }
 })

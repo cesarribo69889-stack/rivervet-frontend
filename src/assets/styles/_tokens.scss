@@ -1,0 +1,74 @@
+// ═══════════════════════════════════════════════════════════════════
+//  Paleta de marca — tomada del logo de Rivervet
+//  · Azul marino del perrito y del wordmark "Rivervet"
+//  · Verde turquesa del gato y de "Centro Veterinario"
+//  · Celeste de los ojos del perrito (acento, se usa poco)
+//  Todo vive en variables CSS para poder usarlas dentro de cualquier
+//  componente sin importar este archivo.
+// ═══════════════════════════════════════════════════════════════════
+:root {
+  // ── Azul marino (color primario) ──
+  --rv-navy-900: #08132f;
+  --rv-navy-800: #0c1c46;
+  --rv-navy-700: #102254;
+  --rv-navy: #14295e; // el del logo
+  --rv-navy-500: #1d3a7d;
+  --rv-navy-400: #33559c;
+  --rv-navy-200: #aebbd8;
+  --rv-navy-50: #eef2fa;
+
+  // ── Turquesa (color secundario / acción) ──
+  --rv-teal-700: #0f8f77;
+  --rv-teal-600: #14a88c;
+  --rv-teal: #23c3a5; // el del gato
+  --rv-teal-300: #7bdcc8;
+  --rv-teal-100: #d3f3ec;
+  --rv-teal-50: #ecfaf6;
+
+  // ── Celeste de los ojos (acento puntual) ──
+  --rv-cielo: #5f9fe0;
+  --rv-cielo-50: #eaf3fd;
+
+  // ── Neutros ──
+  --rv-blanco: #ffffff;
+  --rv-fondo: #f5f7fb;
+  --rv-superficie: #ffffff;
+  --rv-superficie-2: #f8fafd;
+  --rv-borde: #e7eaf0;
+  --rv-borde-fuerte: #d5dbe5;
+  --rv-texto: #172033;
+  --rv-texto-suave: #667085;
+  --rv-texto-tenue: #8695ad;
+
+  // ── Estados ──
+  --rv-exito: #0f9f77;
+  --rv-exito-bg: #e6f7f1;
+  --rv-aviso: #b8860b;
+  --rv-aviso-bg: #fdf4de;
+  --rv-error: #c8443b;
+  --rv-error-bg: #fdeceb;
+  --rv-info: var(--rv-cielo);
+  --rv-info-bg: var(--rv-cielo-50);
+
+  // ── Tipografía ──
+  --rv-fuente: 'DM Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --rv-fuente-titulo: 'Manrope', 'DM Sans', system-ui, 'Segoe UI', sans-serif;
+
+  // ── Formas y sombras ──
+  --rv-radio-sm: 10px;
+  --rv-radio: 16px;
+  --rv-radio-lg: 28px;
+  --rv-radio-full: 999px;
+
+  --rv-sombra-sm: 0 1px 2px rgba(16, 34, 84, 0.06), 0 1px 3px rgba(16, 34, 84, 0.08);
+  --rv-sombra: 0 10px 30px rgba(16, 34, 84, 0.08);
+  --rv-sombra-lg: 0 28px 70px rgba(16, 34, 84, 0.16);
+  --rv-anillo: 0 0 0 3px rgba(35, 195, 165, 0.35);
+
+  // ── Medidas del layout ──
+  --rv-sidebar: 248px;
+  --rv-topbar: 76px;
+  --rv-ancho-max: 1240px;
+
+  --rv-transicion: 160ms ease;
+}

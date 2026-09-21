@@ -1,22 +1,29 @@
 {
-  "name": "veterinaria-frontend",
+  "name": "rivervet-frontend",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "ng": "ng",
+    "start": "ng serve --open",
+    "dev": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
   },
   "dependencies": {
-    "axios": "^1.20.0",
-    "pinia": "^4.0.3",
-    "vue": "^3.5.42",
-    "vue-router": "^4.6.4"
+    "@angular/common": "^22.1.0",
+    "@angular/compiler": "^22.1.0",
+    "@angular/core": "^22.1.0",
+    "@angular/forms": "^22.1.0",
+    "@angular/platform-browser": "^22.1.0",
+    "@angular/router": "^22.1.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^6.0.8",
-    "sass": "^1.104.1",
-    "vite": "^8.3.0"
+    "@angular/build": "^22.1.8",
+    "@angular/cli": "^22.1.8",
+    "@angular/compiler-cli": "^22.1.0",
+    "typescript": "~6.0.2"
   }
 }

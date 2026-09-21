@@ -1,0 +1,3 @@
+import { Component } from '@angular/core';import { RouterLink } from '@angular/router';
+@Component({selector:'app-sin-permiso',standalone:true,imports:[RouterLink],template:`<div class="rv-vacio"><h1>Sin permiso</h1><p>Tu cuenta no tiene acceso a esta pantalla.</p><a routerLink="/panel" class="rv-boton rv-boton--primario">Volver al panel</a></div>`})export class SinPermisoComponent{}
+@Component({selector:'app-no-encontrado',standalone:true,imports:[RouterLink],template:`<div class="rv-vacio"><h1>Página no encontrada</h1><a routerLink="/" class="rv-boton rv-boton--primario">Ir al inicio</a></div>`})export class NoEncontradoComponent{}
