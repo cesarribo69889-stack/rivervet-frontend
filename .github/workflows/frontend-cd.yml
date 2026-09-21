@@ -1,0 +1,122 @@
+# ═══════════════════════════════════════════════════════════════════════
+#  CD del FRONTEND de RiverVet — despliegue continuo a producción
+#
+#  Se dispara al hacer push a main (o a mano desde Actions).
+#
+#  Orden:  1) build de verificación   2) despliegue en Vercel
+#          3) health check            4) si falla: rollback + aviso
+#
+#  El health check no solo mira que la página cargue: comprueba
+#  /api/health A TRAVÉS de la reescritura de vercel.json. Así detecta
+#  el fallo más probable de este montaje — que el proxy hacia el App
+#  Service de Azure se rompa — y no solo que el HTML se haya subido.
+#
+#  Mientras no exista la variable URL_FRONTEND_PRODUCCION, el job se
+#  OMITE: el repositorio puede vivir en GitHub sin que cada push
+#  termine en un despliegue fallido.
+# ═══════════════════════════════════════════════════════════════════════
+
+name: Frontend CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Nunca dos despliegues a la vez, y nunca se cancela uno a medias.
+concurrency:
+  group: cd-produccion-frontend
+  cancel-in-progress: false
+
+env:
+  # Versión fija: que una versión nueva del CLI no rompa el despliegue
+  # sin que nadie haya tocado el repositorio.
+  VERCEL_CLI: vercel@59.23.2
+  URL_FRONTEND: ${{ vars.URL_FRONTEND_PRODUCCION }}
+
+jobs:
+  desplegar:
+    name: desplegar a producción
+    if: vars.URL_FRONTEND_PRODUCCION != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    environment:
+      name: produccion
+      url: ${{ vars.URL_FRONTEND_PRODUCCION }}
+
+    permissions:
+      contents: read
+      # Abrir un issue de aviso si el despliegue falla.
+      issues: write
+
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      # 1. Build de verificación. Si Angular no compila, se para aquí y
+      #    producción no se toca.
+      - name: Build de verificación
+        run: npm run build
+
+      # 2. Despliegue. Se construye aparte (vercel build) y se sube ya
+      #    compilado (--prebuilt): así el artefacto que se publica es
+      #    exactamente el que se verificó arriba.
+      - name: Desplegar en Vercel
+        id: despliegue
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npx --yes "$VERCEL_CLI" pull --yes --environment=production --token="$VERCEL_TOKEN"
+          npx --yes "$VERCEL_CLI" build --prod --token="$VERCEL_TOKEN"
+          npx --yes "$VERCEL_CLI" deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+
+      # 3. Health check: la página Y la API a través del rewrite.
+      - name: Health check (máximo 60 s)
+        run: |
+          for intento in $(seq 1 12); do
+            pagina=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$URL_FRONTEND/" || echo 000)
+            api=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$URL_FRONTEND/api/health" || echo 000)
+            if [ "$pagina" = "200" ] && [ "$api" = "200" ]; then
+              echo "OK: página $pagina, API $api (a través del rewrite)."
+              exit 0
+            fi
+            echo "Intento $intento/12 — página $pagina, API $api; reintento en 5 s..."
+            sleep 5
+          done
+          echo "::error::La web o el rewrite hacia Azure no respondieron 200 en 60 segundos"
+          exit 1
+
+      # ── ROLLBACK: solo si falló el despliegue o el health check ──────
+      # vercel rollback restaura al instante el despliegue anterior.
+      - name: Rollback al despliegue anterior
+        if: failure() && steps.despliegue.outcome != 'skipped'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: npx --yes "$VERCEL_CLI" rollback --yes --token="$VERCEL_TOKEN"
+
+      - name: Avisar al equipo
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --repo "${{ github.repository }}" \
+            --title "Falló el despliegue del frontend (${GITHUB_SHA::7})" \
+            --body "El workflow Frontend CD falló: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          - Rollback ejecutado: ${{ steps.despliegue.outcome != 'skipped' }}
+          - Revisa el log del job y backend/docs/DESPLIEGUE.md."
