@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { AuthService } from '../core/auth.service';
-import { GRUPOS, NOMBRE_ROL } from '../core/constants';
+import { GRUPOS, NOMBRE_ROL, ROLES } from '../core/constants';
 import { ToastService } from '../core/toast.service';
 import { IconComponent } from '../shared/icon.component';
 import { LogoComponent } from '../shared/logo.component';
@@ -78,7 +78,8 @@ export class AppLayoutComponent {
     { url: '/citas', texto: 'Agenda y citas', icono: 'calendar', roles: GRUPOS.TODOS },
     { url: '/mascotas', texto: 'Mascotas', icono: 'paw', roles: GRUPOS.TODOS },
     { url: '/clientes', texto: 'Clientes', icono: 'users', roles: GRUPOS.PERSONAL },
-    { url: '/inventario', texto: 'Inventario', icono: 'box', roles: GRUPOS.ADMIN_O_RECEPCION }
+    { url: '/inventario', texto: 'Inventario', icono: 'box', roles: GRUPOS.ADMIN_O_RECEPCION },
+    { url: '/usuarios', texto: 'Usuarios', icono: 'shield', roles: [ROLES.ADMIN] }
   ];
   readonly visibles = computed(() => this.enlaces.filter(e => e.roles.includes(this.auth.rol())));
   readonly rol = computed(() => NOMBRE_ROL[this.auth.rol()] ?? '');
