@@ -42,6 +42,10 @@ export class LoginComponent {
   constructor(){this.comprobarApi();}
   private async comprobarApi(intento=1):Promise<void>{try{await firstValueFrom(this.api.get('/health'));this.estadoApi.set('ok');}catch(e){const codigo=(e as any)?.status;const despertando=codigo===503||codigo===504||codigo===0;if(despertando&&intento<8){this.estadoApi.set('despertando');setTimeout(()=>this.comprobarApi(intento+1),5000);}else{this.estadoApi.set(despertando?'despertando':'caida');}}}
   async entrar():Promise<void>{this.enviando.set(true);this.error.set('');try{const s=await this.intentarLogin();this.toast.exito(`¡Hola, ${s.usuario.nombre}!`);await this.router.navigateByUrl(this.route.snapshot.queryParamMap.get('redirect')||'/panel');}catch(e){this.error.set(mensajeDeError(e,'No se pudo iniciar sesión.'));}finally{this.enviando.set(false);}}
-  private async intentarLogin(intento=1):Promise<any>{try{return await this.auth.login(this.datos);}catch(e){const codigo=(e as any)?.status;if((codigo===503||codigo===504)&&intento<3){this.estadoApi.set('despertando');await new Promise(r=>setTimeout(r,6000));return this.intentarLogin(intento+1);}throw e;}}
+  // Mientras la base despierta, el login puede responder 500 (la consulta
+  // falla), no solo 503. Para no reintentar un 500 genuino se pregunta antes a
+  // /health: si la base ya responde, el error es real y se muestra tal cual.
+  private async intentarLogin(intento=1):Promise<any>{try{return await this.auth.login(this.datos);}catch(e){const codigo=(e as any)?.status;if([500,503,504].includes(codigo)&&intento<4&&!(await this.baseDisponible())){this.estadoApi.set('despertando');await new Promise(r=>setTimeout(r,6000));return this.intentarLogin(intento+1);}throw e;}}
+  private async baseDisponible():Promise<boolean>{try{await firstValueFrom(this.api.get('/health'));return true;}catch{return false;}}
 
 }
