@@ -79,6 +79,9 @@ export class AppLayoutComponent {
     { url: '/mascotas', texto: 'Mascotas', icono: 'paw', roles: GRUPOS.TODOS },
     { url: '/clientes', texto: 'Clientes', icono: 'users', roles: GRUPOS.PERSONAL },
     { url: '/inventario', texto: 'Inventario', icono: 'box', roles: GRUPOS.ADMIN_O_RECEPCION },
+    { url: '/pedidos', texto: 'Pedidos', icono: 'receipt', roles: GRUPOS.ADMIN_O_RECEPCION },
+    { url: '/pedidos', texto: 'Mis pedidos', icono: 'receipt', roles: [ROLES.CLIENTE] },
+    { url: '/carrito', texto: 'Mi carrito', icono: 'cart', roles: [ROLES.CLIENTE] },
     { url: '/usuarios', texto: 'Usuarios', icono: 'shield', roles: [ROLES.ADMIN] }
   ];
   readonly visibles = computed(() => this.enlaces.filter(e => e.roles.includes(this.auth.rol())));

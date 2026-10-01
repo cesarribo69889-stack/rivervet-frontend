@@ -13,6 +13,9 @@ export function mensajeDeError(error: unknown, porDefecto = 'Ocurrió un error i
   if (error.status === 401) return data?.message ?? 'Tu sesión expiró. Vuelve a iniciar sesión.';
   if (error.status === 403) return data?.message ?? 'No tienes permiso para realizar esta acción.';
   if (error.status === 429) return data?.message ?? 'Demasiadas solicitudes. Espera unos minutos.';
+  // 503 con mensaje = un servicio apagado a proposito (p. ej. "El pago con
+  // Yape no está habilitado"): ese texto sirve al usuario; el generico no.
+  if (error.status === 503 && data?.message) return data.message;
   if (error.status >= 500) return `El servidor tuvo un problema.${data?.traceId ? ` Referencia: ${data.traceId}` : ''}`;
   return data?.message ?? porDefecto;
 }

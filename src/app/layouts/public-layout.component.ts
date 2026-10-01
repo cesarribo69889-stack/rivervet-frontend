@@ -16,6 +16,7 @@ import { LogoComponent } from '../shared/logo.component';
           <a routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{exact:true}">Inicio</a>
           <a routerLink="/" fragment="servicios">Servicios</a>
           <a routerLink="/tienda" routerLinkActive="activo">Tienda</a>
+          <a routerLink="/orientacion" routerLinkActive="activo">¿Es urgente?</a>
           <a routerLink="/" fragment="contacto">Contacto</a>
           <a [routerLink]="auth.autenticado() ? '/panel' : '/login'" class="acceso">{{auth.autenticado() ? 'Ir al panel' : 'Acceso clientes'}} <span>→</span></a>
         </nav>
@@ -23,7 +24,7 @@ import { LogoComponent } from '../shared/logo.component';
       <main><router-outlet/></main>
       <footer id="contacto"><div class="rv-contenedor pie">
         <div class="pie__marca"><app-logo [claro]="true" [alto]="48"/><p>Salud, prevención y cariño para quienes hacen tu hogar más feliz.</p></div>
-        <div><h3>Explora</h3><a routerLink="/">Inicio</a><a routerLink="/tienda">Tienda</a><a routerLink="/login">Mi cuenta</a></div>
+        <div><h3>Explora</h3><a routerLink="/">Inicio</a><a routerLink="/tienda">Tienda</a><a routerLink="/orientacion">Orientación de síntomas</a><a routerLink="/login">Mi cuenta</a></div>
         <div><h3>Horario</h3><p>{{horario}}</p><p>Lima, Perú</p></div>
       </div><div class="rv-contenedor legal"><span>© {{anio}} Rivervet</span><span>Centro Veterinario</span></div></footer>
     </div>`,

@@ -347,6 +347,12 @@
     background: var(--rv-aviso-bg);
     color: #6b4c05;
   }
+
+  &--exito {
+    border-left-color: var(--rv-exito);
+    background: var(--rv-exito-bg);
+    color: #0b5f47;
+  }
 }
 
 // ── Estados de carga y vacío ──

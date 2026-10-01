@@ -13,6 +13,9 @@ import { Component, input } from '@angular/core';
         @case ('box') { <path d="m21 8-9 5-9-5 9-5 9 5Z"/><path d="m3 8 9 5 9-5v8l-9 5-9-5V8ZM12 13v8"/> }
         @case ('shop') { <path d="M3 9h18l-1-5H4L3 9Z"/><path d="M5 9v11h14V9M9 20v-6h6v6M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/> }
         @case ('shield') { <path d='M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6l8-3Z'/><circle cx='12' cy='11' r='2.2'/><path d='M8.6 16.5a3.6 3.6 0 0 1 6.8 0'/> }
+        @case ('receipt') { <path d='M6 3h12v18l-3-2-3 2-3-2-3 2V3Z'/><path d='M9 8h6M9 12h6M9 16h4'/> }
+        @case ('cart') { <circle cx='9' cy='20' r='1.4'/><circle cx='18' cy='20' r='1.4'/><path d='M2 3h3l2.6 11.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.5L21 7H6'/> }
+        @case ('alert') { <path d='M12 3 2 20h20L12 3Z'/><path d='M12 10v4M12 17h.01'/> }
         @case ('medical') { <path d="M9 4h6M12 1v6M6 9h12v12H6z"/><path d="M9 15h6M12 12v6"/> }
         @case ('vaccine') { <path d="m18 2 4 4M17 7l2-2M5 13l6 6M3 21l4-4M9 15l8-8 2 2-8 8"/> }
         @case ('refresh') { <path d="M20 6v5h-5M4 18v-5h5"/><path d="M18.5 9A7 7 0 0 0 6 6.5L4 9M5.5 15A7 7 0 0 0 18 17.5l2-2.5"/> }
