@@ -38,8 +38,13 @@ La suscripción solo permite `westus`, `northcentralus`, `chilecentral`,
 - La BD se **pausa tras 60 min** sin uso: la primera petición recibe 500/503
   unos 30-60 s. El login lo tolera (reintenta y consulta `/health`). No
   desactivar la pausa: es lo que la mantiene dentro de la oferta gratuita.
-- Solo el rol **veterinario** registra atenciones y vacunas (ni el admin).
-  Agendar/reprogramar citas: admin y recepción. Carrito: solo cliente.
+- Solo el rol **veterinario** registra atenciones y vacunas (ni el admin), y
+  solo **el que la registró** puede corregirla o eliminarla (borrado lógico,
+  auditado con el contenido anterior). Agendar/reprogramar citas e
+  inasistencia: admin y recepción. Carrito: solo cliente.
+- La API rechaza con **422** cualquier campo de un body que no conozca
+  (`UnmappedMemberHandling.Disallow`). Si un cambio agrega un campo al
+  contrato, el orden de despliegue es: migración → API → web, nunca al revés.
 
 ## Despliegue
 
@@ -49,9 +54,18 @@ La suscripción solo permite `westus`, `northcentralus`, `chilecentral`,
   (vence 2027-10-01; un token "solo proyecto" NO sirve).
 - Manual: `npx vercel --prod` (en PowerShell del usuario: `npx.cmd`, por la
   ExecutionPolicy).
-- **Backend**: su CD no está activo. Se publica a mano:
+- **Backend**: su CD no está activo. Se publica a mano desde `main`:
   `dotnet publish src/RiverVet.Api -c Release -o publicacion -p:UseAppHost=false`,
-  comprimir y `az webapp deploy --type zip`.
+  comprimir y `az webapp deploy --type zip`. Ramas: `develop` (integración) y
+  `main` (lo que está en producción).
+- **Pruebas del backend**: en esta PC NO corren (Windows Smart App Control bloquea
+  cargar `RiverVet.Api.dll`; no desactivarlo: no se puede volver a encender). Se
+  corren en el CI de GitHub, que tiene su propio SQL Server. El push NO dispara el
+  CI: lanzarlo con `gh workflow run backend-ci.yml --repo cesarribo69889-stack/rivervet --ref develop`.
+  Antes de subir: `dotnet format RiverVet.slnx --verify-no-changes --severity warn`
+  (el CI falla por el orden de los `using`).
+- Colección de Postman: `backend/docs/RiverVet.postman_collection.json`; se
+  regenera con `node herramientas/generar-coleccion-postman.mjs`.
 - Configuración y secretos del backend: variables del App Service, nunca en el repo.
 
 ## Convenciones del código
@@ -73,6 +87,10 @@ La suscripción solo permite `westus`, `northcentralus`, `chilecentral`,
   desde Git Bash se rompen ("húmedo" → "hÃºmedo") antes de enviarse. Mantener los
   scripts en ASCII (texto con tildes en JSON aparte) o guardarlos con BOM.
 - `sqlcmd` necesita `SET QUOTED_IDENTIFIER ON` para borrar o modificar (hay índices filtrados).
+- `citas.fecha_hora` solo admite :00 o :30 exactos (`CK_citas_bloque`); en pruebas
+  que mueven una cita al pasado, usar un bloque alineado. Columnas `eliminado` son BIT.
+- En el bundle de Angular las tildes van escapadas (`cl\xEDnico`): para buscar
+  textos en el bundle publicado, usar la parte ASCII.
 - El ISP del usuario alterna IPs: la regla `PcDesarrollo` del firewall de Azure SQL
   se desactualiza; usar la IP que muestra el error de `sqlcmd`.
 
@@ -86,7 +104,29 @@ La suscripción solo permite `westus`, `northcentralus`, `chilecentral`,
 - HU-021 triage: "agendar" deriva a WhatsApp (la API no deja agendar al cliente).
 - HU-019 pasarela: solo existe la simulada; falta contratar un proveedor real.
 
+### Sprint 2 (tareas de Cesar y Mariano, 2026-10-06)
+
+Hecho con nuestro stack (.NET + Angular en vez de Node/Express + Vue/FullCalendar):
+- API: `/api/citas/mascota/{id}`, `/api/citas/veterinario/{id}`, `?mascotaId=`,
+  `POST /api/citas/{id}/no-asistio`; detalle/PUT/DELETE de atenciones y vacunas;
+  `/api/dashboard/stats`, `/citas-hoy`, `/citas-semana`. Pruebas en
+  `Sprint2AmpliacionPruebas.cs` (CI: 259/259). Colección de Postman y API.md.
+- Web: páginas `/historial` (búsqueda, impresión, vincular atención a una cita)
+  y `/vacunas` (alertas "Urgente" < 7 días, sugerencias por especie); calendario
+  con vista Mes, clic para agendar, filtro por mascota, "Atender" y "No asistió";
+  panel del personal con tarjetas, citas de hoy y gráfico de la semana; migas de pan.
+- Datos de demostración en producción: 4 clientes ficticios (`@example.com`,
+  teléfonos `9000001xx`, DNI `100001xx`), 6 mascotas, citas, atenciones y vacunas.
+- Estados de cita del sprint vs. los nuestros: pendiente→programada,
+  completada→atendida; "confirmada" no existe; se agregó `no_asistio`.
+
 ## Pendientes
+
+0. **Receta (Sprint 2)**: lista en `develop` (backend, migración 0005) y en la rama
+   `receta` del frontend. Para publicar: aplicar la migración en Azure con el
+   usuario `rivervet_migrador` (clave en los secretos del usuario: pedírsela),
+   publicar la API desde `develop` (y mezclarla en `main`), y recién después
+   mezclar la rama `receta` en `main` del frontend.
 
 1. Probar Yape de punta a punta y borrar el pedido de prueba (requiere la clave
    del admin de SQL; el usuario guarda los secretos fuera del repo: pedírsela).
