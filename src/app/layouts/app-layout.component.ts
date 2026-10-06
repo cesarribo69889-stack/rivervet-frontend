@@ -36,14 +36,14 @@ import { LogoComponent } from '../shared/logo.component';
 
       <section class="workspace">
         <header class="topbar">
-          <button class="menu-btn" (click)="menu.update(v => !v)" aria-label="Abrir menú">☰</button>
-          <div class="topbar__titulo"><span>Centro Veterinario</span><h1>{{titulo()}}</h1></div>
+          <button class="menu-btn" (click)="menu.update(v => !v)" aria-label="Abrir menú" title="Abrir menú">☰</button>
+          <div class="topbar__titulo"><nav class="migas" aria-label="Estás en"><a routerLink="/panel">Inicio</a>@if(titulo()!=='Panel'&&titulo()!=='Resumen'){<span aria-hidden="true">›</span><span>{{titulo()}}</span>}</nav><h1>{{titulo()}}</h1></div>
           <div class="topbar__usuario">
-            <a routerLink="/perfil" class="perfil-link">
+            <a routerLink="/perfil" class="perfil-link" title="Mi cuenta">
               <img src="rivervet-profile.png" alt="Perfil de Rivervet">
               <span><strong>{{auth.nombre()}}</strong><small>{{rol()}}</small></span>
             </a>
-            <button class="salir" (click)="salir()" aria-label="Cerrar sesión">Salir</button>
+            <button class="salir" (click)="salir()" aria-label="Cerrar sesión" title="Cerrar sesión">Salir</button>
           </div>
         </header>
         <main class="contenido"><router-outlet/></main>
@@ -62,7 +62,7 @@ import { LogoComponent } from '../shared/logo.component';
     .sidebar__ayuda{margin-top:auto;padding:1rem;border:1px solid rgba(123,220,200,.16);border-radius:15px;background:linear-gradient(145deg,rgba(35,195,165,.11),rgba(255,255,255,.025))}.sidebar__ayuda strong,.sidebar__ayuda small{display:block}.sidebar__ayuda strong{font-size:.82rem}.sidebar__ayuda small{margin-top:.2rem;color:#8da0c6;font-size:.72rem}.ayuda-icon{float:right;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--rv-teal);color:#073d35;font-weight:800}
     .sidebar__tienda{display:flex;align-items:center;justify-content:center;gap:.55rem;margin-top:.7rem;padding:.65rem;color:#95a6c7;font-size:.8rem;font-weight:700}.sidebar__tienda:hover{color:var(--rv-teal)}
     .workspace{min-height:100vh;margin-left:var(--rv-sidebar)}.topbar{position:sticky;top:0;z-index:30;height:var(--rv-topbar);display:flex;align-items:center;padding:0 2rem;background:rgba(255,255,255,.86);backdrop-filter:blur(18px);border-bottom:1px solid rgba(213,219,229,.75)}
-    .topbar__titulo>span{display:block;color:var(--rv-texto-tenue);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.11em}.topbar h1{margin:.08rem 0 0;font-size:1.18rem;letter-spacing:-.025em}.topbar__usuario{margin-left:auto;display:flex;align-items:center;gap:.8rem}.perfil-link{display:flex;align-items:center;gap:.65rem;padding:.3rem .5rem;border-radius:12px}.perfil-link:hover{background:var(--rv-navy-50)}.perfil-link img{width:40px;height:40px;border-radius:11px;object-fit:cover;background:white;border:1px solid var(--rv-borde)}.perfil-link strong,.perfil-link small{display:block}.perfil-link strong{color:var(--rv-navy);font-size:.84rem}.perfil-link small{color:var(--rv-texto-tenue);font-size:.7rem}.salir{padding:.48rem .75rem;border:1px solid var(--rv-borde);border-radius:9px;background:white;color:var(--rv-texto-suave);font-size:.78rem;font-weight:700;cursor:pointer}.salir:hover{color:var(--rv-error);border-color:#efc1bd}
+    .migas{display:flex;align-items:center;gap:.35rem;color:var(--rv-texto-tenue);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.11em}.migas a{color:var(--rv-texto-tenue)}.migas a:hover{color:var(--rv-teal-700)}.topbar h1{margin:.08rem 0 0;font-size:1.18rem;letter-spacing:-.025em}.topbar__usuario{margin-left:auto;display:flex;align-items:center;gap:.8rem}.perfil-link{display:flex;align-items:center;gap:.65rem;padding:.3rem .5rem;border-radius:12px}.perfil-link:hover{background:var(--rv-navy-50)}.perfil-link img{width:40px;height:40px;border-radius:11px;object-fit:cover;background:white;border:1px solid var(--rv-borde)}.perfil-link strong,.perfil-link small{display:block}.perfil-link strong{color:var(--rv-navy);font-size:.84rem}.perfil-link small{color:var(--rv-texto-tenue);font-size:.7rem}.salir{padding:.48rem .75rem;border:1px solid var(--rv-borde);border-radius:9px;background:white;color:var(--rv-texto-suave);font-size:.78rem;font-weight:700;cursor:pointer}.salir:hover{color:var(--rv-error);border-color:#efc1bd}
     .contenido{width:min(100%,1400px);padding:2.25rem 2rem 4rem}.menu-btn{display:none}.velo{position:fixed;inset:0;z-index:45;border:0;background:rgba(8,19,47,.5)}
     @media(max-width:960px){.sidebar{transform:translateX(-100%);transition:transform .22s ease}.shell--menu .sidebar{transform:none}.workspace{margin-left:0}.menu-btn{display:grid;place-items:center;margin-right:1rem;width:38px;height:38px;border:1px solid var(--rv-borde);border-radius:10px;background:white}.contenido{padding:1.5rem 1rem 3rem}.topbar{padding:0 1rem}.perfil-link span{display:none}}
   `]
@@ -77,6 +77,8 @@ export class AppLayoutComponent {
     { url: '/panel', texto: 'Resumen', icono: 'home', roles: GRUPOS.TODOS },
     { url: '/citas', texto: 'Agenda y citas', icono: 'calendar', roles: GRUPOS.TODOS },
     { url: '/mascotas', texto: 'Mascotas', icono: 'paw', roles: GRUPOS.TODOS },
+    { url: '/historial', texto: 'Historial clínico', icono: 'medical', roles: GRUPOS.TODOS },
+    { url: '/vacunas', texto: 'Vacunas', icono: 'vaccine', roles: GRUPOS.TODOS },
     { url: '/clientes', texto: 'Clientes', icono: 'users', roles: GRUPOS.PERSONAL },
     { url: '/inventario', texto: 'Inventario', icono: 'box', roles: GRUPOS.ADMIN_O_RECEPCION },
     { url: '/pedidos', texto: 'Pedidos', icono: 'receipt', roles: GRUPOS.ADMIN_O_RECEPCION },

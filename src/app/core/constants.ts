@@ -39,3 +39,12 @@ export const METODO_PAGO: Record<string, string> = { yape: 'Yape', pasarela: 'Ta
 // una cita: la API no deja agendar al cliente. Vacio = se muestra el horario
 // y se invita a acercarse a recepcion.
 export const WHATSAPP_CLINICA = '948447912';
+
+// Sugerencias para el campo "vacuna" (datalist): el veterinario puede escribir
+// cualquier otra. Por especie, para no ofrecerle a un gato vacunas de perro.
+export const VACUNAS_COMUNES: Record<string, string[]> = {
+  perro: ['Antirrábica', 'Séxtuple (polivalente)', 'Óctuple (polivalente)', 'Parvovirus', 'Moquillo', 'Leptospirosis', 'Bordetella (tos de las perreras)', 'Coronavirus canino'],
+  gato: ['Antirrábica', 'Triple felina', 'Leucemia felina', 'Rinotraqueítis', 'Calicivirus', 'Panleucopenia'],
+  conejo: ['Mixomatosis', 'Enfermedad hemorrágica vírica (VHD)'],
+  otro: ['Antirrábica'],
+};

@@ -36,3 +36,14 @@ export function iniciales(nombre?: string): string { const p = (nombre ?? '').tr
 export function paramsLimpios(obj: Record<string, any>): Record<string, any> {
   return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== '' && v !== null && v !== undefined));
 }
+
+/** "2 años y 3 meses" a partir de 'AAAA-MM-DD'. Sin fecha: '—'. */
+export function edadTexto(fechaNacimiento?: string | null): string {
+  if (!fechaNacimiento) return '—';
+  const [a, m, d] = fechaNacimiento.split('-').map(Number);
+  const hoy = new Date(); let meses = (hoy.getFullYear() - a) * 12 + (hoy.getMonth() + 1 - m) - (hoy.getDate() < d ? 1 : 0);
+  if (meses < 0) return '—';
+  const anios = Math.floor(meses / 12); meses %= 12;
+  const partes = [anios ? `${anios} ${anios === 1 ? 'año' : 'años'}` : '', meses ? `${meses} ${meses === 1 ? 'mes' : 'meses'}` : ''].filter(Boolean);
+  return partes.length ? partes.join(' y ') : 'Menos de un mes';
+}

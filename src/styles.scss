@@ -18,3 +18,12 @@
 .rv-vacio { padding: 2rem; text-align: center; color: var(--rv-texto-suave); }
 .rv-chip { display: inline-flex; align-items:center; gap:.35rem; padding: .28rem .65rem; border-radius: 999px; background: var(--rv-teal-50); color: var(--rv-teal-700); font-size: .78rem; font-weight:700; }
 @media (max-width: 700px) { .rv-form-grid { grid-template-columns: 1fr; } }
+
+// Impresión del historial clínico: solo el contenido, sin menú ni botones.
+@media print {
+  .sidebar, .topbar, .no-imprimir, app-toasts { display: none !important; }
+  .workspace { margin-left: 0 !important; }
+  .contenido { padding: 0 !important; width: 100% !important; }
+  .rv-panel { box-shadow: none !important; border-color: #ccc !important; }
+  body { background: white !important; }
+}
