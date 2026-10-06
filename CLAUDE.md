@@ -22,6 +22,10 @@ vez de `tipoVacuna`, `ventasTotal`, `p.stock` en el catálogo público…).
 - BD: Azure SQL `rivervet_db` en `rivervet-sql-5nua9h` (serverless, oferta gratuita)
 - Grupo `rg-rivervet`, región **westus**, suscripción *Azure for Students*
 
+La tienda tiene 12 productos de ejemplo en 4 categorías (Alimentos, Snacks y
+premios, Accesorios, Higiene y cuidado), creados el 2026-10-06. La correa
+(`ACC-CORREA-120`) quedó con stock bajo a propósito para mostrar ese aviso.
+
 La suscripción solo permite `westus`, `northcentralus`, `chilecentral`,
 `mexicocentral` y `canadacentral`; solo westus ofrece todo (SQL gratis + F1).
 
@@ -65,6 +69,9 @@ La suscripción solo permite `westus`, `northcentralus`, `chilecentral`,
 - `az.cmd` parte mal argumentos con espacios o llaves: usar `--settings @archivo.json`
   y `-o tsv`. `az appservice plan create` crea Linux por defecto: `--is-linux false`.
 - PowerShell 5.1 corre sobre .NET Framework (no hay `RandomNumberGenerator.GetInt32`).
+- PowerShell 5.1 lee un `.ps1` sin BOM como ANSI: las tildes de un script escrito
+  desde Git Bash se rompen ("húmedo" → "hÃºmedo") antes de enviarse. Mantener los
+  scripts en ASCII (texto con tildes en JSON aparte) o guardarlos con BOM.
 - `sqlcmd` necesita `SET QUOTED_IDENTIFIER ON` para borrar o modificar (hay índices filtrados).
 - El ISP del usuario alterna IPs: la regla `PcDesarrollo` del firewall de Azure SQL
   se desactualiza; usar la IP que muestra el error de `sqlcmd`.
