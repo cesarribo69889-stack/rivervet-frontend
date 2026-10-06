@@ -99,8 +99,9 @@ La suscripción solo permite `westus`, `northcentralus`, `chilecentral`,
 - ✅ 001–016, 018 y 020 completas.
 - HU-020: el comprobante lleva solo código, total y fecha **por decisión del
   usuario** (Ley 29733; lo protege `Sprint4Pruebas.cs`). No agregar productos.
-- HU-017 Yape: activo. Falta el QR (`public/yape-qr.png`, la web lo oculta si
-  no existe) y probar de punta a punta: pagar → rechazar → pagar → aprobar.
+- HU-017 Yape: activo y **probado de punta a punta en producción** el 2026-10-06
+  (pagar → rechazar → pagar → aprobar → `pagado`). Falta el QR
+  (`public/yape-qr.png`, la web lo oculta si no existe).
 - HU-021 triage: "agendar" deriva a WhatsApp (la API no deja agendar al cliente).
 - HU-019 pasarela: solo existe la simulada; falta contratar un proveedor real.
 
@@ -122,14 +123,11 @@ Hecho con nuestro stack (.NET + Angular en vez de Node/Express + Vue/FullCalenda
 
 ## Pendientes
 
-0. **Receta (Sprint 2)**: lista en `develop` (backend, migración 0005) y en la rama
-   `receta` del frontend. Para publicar: aplicar la migración en Azure con el
-   usuario `rivervet_migrador` (clave en los secretos del usuario: pedírsela),
-   publicar la API desde `develop` (y mezclarla en `main`), y recién después
-   mezclar la rama `receta` en `main` del frontend.
-
-1. Probar Yape de punta a punta y borrar el pedido de prueba (requiere la clave
-   del admin de SQL; el usuario guarda los secretos fuera del repo: pedírsela).
+1. Borrar el pedido de prueba de Yape **RV-000003** (id 3, `pagado`, 1 ×
+   `ALI-GATO-HUMEDO-85G`, pagos `PRUEBA00001` rechazado y `PRUEBA00002`
+   aprobado) y devolver 1 unidad al stock (59 → 60). Con el admin de SQL, en una
+   transacción: `pagos`, `pedido_items` y `pedidos`, verificando el número de filas.
+   Confirmar si el usuario ya lo hizo antes de repetirlo.
 2. Yape y WhatsApp son **provisionales** (los del administrador): cambiarlos
    cuando el usuario dé los de la clínica. Yape: `Pagos__Yape__Celular` y
    `__Titular` en el App Service. WhatsApp: `WHATSAPP_CLINICA` en
