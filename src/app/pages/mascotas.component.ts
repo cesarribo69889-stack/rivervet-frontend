@@ -13,6 +13,7 @@ import { Component, inject, signal } from '@angular/core';import { FormsModule }
       <label class="rv-campo ancho">Motivo<input class="rv-input" name="aMotivo" [(ngModel)]="fAtencion.motivo" required maxlength="250"></label>
       <label class="rv-campo ancho">Diagnóstico<textarea class="rv-input" name="aDiag" [(ngModel)]="fAtencion.diagnostico" required maxlength="1000" rows="2"></textarea></label>
       <label class="rv-campo ancho">Tratamiento<textarea class="rv-input" name="aTrat" [(ngModel)]="fAtencion.tratamiento" required maxlength="1000" rows="2"></textarea></label>
+      <label class="rv-campo ancho">Receta (opcional)<textarea class="rv-input" name="aRec" [(ngModel)]="fAtencion.receta" maxlength="2000" rows="2" placeholder="Medicamento, dosis, frecuencia y duración"></textarea></label>
       <label class="rv-campo">Peso kg<input class="rv-input" type="number" step="0.01" min="0.01" max="999.99" name="aPeso" [(ngModel)]="fAtencion.pesoKg"></label>
       <label class="rv-campo">Temperatura °C<input class="rv-input" type="number" step="0.1" min="30" max="45" name="aTemp" [(ngModel)]="fAtencion.temperaturaC"></label>
       <label class="rv-campo ancho">Observaciones<textarea class="rv-input" name="aObs" [(ngModel)]="fAtencion.observaciones" maxlength="2000" rows="2"></textarea></label>
@@ -20,7 +21,7 @@ import { Component, inject, signal } from '@angular/core';import { FormsModule }
     @if(errorAtencion()){<p class="rv-aviso rv-aviso--error">{{errorAtencion()}}</p>}
     <button class="rv-boton rv-boton--primario" [disabled]="guardandoAtencion()">{{guardandoAtencion()?'Guardando…':'Registrar atención'}}</button>
   </form>}
-  @for(h of historial();track h.id){<div class="registro"><strong>{{h.motivo}}</strong><small>{{fechaUtc(h.fechaAtencion)}} · {{h.veterinarioNombre}}</small><p><em>Diagnóstico:</em> {{h.diagnostico}}<br><em>Tratamiento:</em> {{h.tratamiento}}</p>@if(h.pesoKg){<small>Peso {{h.pesoKg}} kg</small>}@if(h.temperaturaC){<small>Temperatura {{h.temperaturaC}} °C</small>}@if(h.observaciones){<small>{{h.observaciones}}</small>}</div>}@empty{<p>Sin atenciones registradas.</p>}
+  @for(h of historial();track h.id){<div class="registro"><strong>{{h.motivo}}</strong><small>{{fechaUtc(h.fechaAtencion)}} · {{h.veterinarioNombre}}</small><p><em>Diagnóstico:</em> {{h.diagnostico}}<br><em>Tratamiento:</em> {{h.tratamiento}}@if(h.receta){<br><em>Receta:</em> {{h.receta}}}</p>@if(h.pesoKg){<small>Peso {{h.pesoKg}} kg</small>}@if(h.temperaturaC){<small>Temperatura {{h.temperaturaC}} °C</small>}@if(h.observaciones){<small>{{h.observaciones}}</small>}</div>}@empty{<p>Sin atenciones registradas.</p>}
 
   <div class="seccion"><h3>Vacunas</h3>@if(esVeterinario){<button class="rv-boton rv-boton--sm rv-boton--contorno" (click)="alternarVacuna()">{{panelVacuna()?'Cancelar':'+ Vacuna'}}</button>}</div>
   @if(panelVacuna()){<form class="formulario" (ngSubmit)="guardarVacuna()">
@@ -54,7 +55,7 @@ export class MascotasComponent{
   constructor(){this.cargar();const id=Number(this.ruta.snapshot.queryParamMap.get('mascota'));if(id>0)this.abrirPorId(id);}
   private async abrirPorId(id:number){try{await this.abrirFicha(await firstValueFrom(this.api.get(`/mascotas/${id}`)));}catch(e){this.toast.error(mensajeDeError(e,'No se pudo abrir la ficha.'));}}
   vacio(){return{clienteId:'',nombre:'',especie:'perro',raza:'',sexo:'',fechaNacimiento:'',pesoKg:'',color:'',senasParticulares:'',esterilizado:false};}
-  atencionVacia(){return{motivo:'',diagnostico:'',tratamiento:'',observaciones:'',pesoKg:'',temperaturaC:''};}
+  atencionVacia(){return{motivo:'',diagnostico:'',tratamiento:'',receta:'',observaciones:'',pesoKg:'',temperaturaC:''};}
   vacunaVacia(){return{tipoVacuna:'',lote:'',fechaAplicacion:hoyLima(),proximaDosis:'',observaciones:''};}
 
   async cargar(){try{const r=await firstValueFrom(this.texto.trim()?this.api.post('/mascotas/buscar',{texto:this.texto.trim(),pagina:1,limite:10}):this.api.get('/mascotas',{pagina:1,limite:10}));this.mascotas.set(r.items??r);}catch(e){this.error.set(mensajeDeError(e));}}
@@ -71,7 +72,7 @@ export class MascotasComponent{
   alternarVacuna(){this.errorVacuna.set('');this.fVacuna=this.vacunaVacia();this.panelVacuna.update(v=>!v);}
 
   async guardarAtencion(){const m=this.activa();if(!m)return;this.guardandoAtencion.set(true);this.errorAtencion.set('');try{
-    await firstValueFrom(this.api.post(`/mascotas/${m.id}/historial`,{motivo:this.fAtencion.motivo,diagnostico:this.fAtencion.diagnostico,tratamiento:this.fAtencion.tratamiento,observaciones:this.fAtencion.observaciones||null,pesoKg:this.fAtencion.pesoKg?Number(this.fAtencion.pesoKg):null,temperaturaC:this.fAtencion.temperaturaC?Number(this.fAtencion.temperaturaC):null}));
+    await firstValueFrom(this.api.post(`/mascotas/${m.id}/historial`,{motivo:this.fAtencion.motivo,diagnostico:this.fAtencion.diagnostico,tratamiento:this.fAtencion.tratamiento,receta:this.fAtencion.receta||null,observaciones:this.fAtencion.observaciones||null,pesoKg:this.fAtencion.pesoKg?Number(this.fAtencion.pesoKg):null,temperaturaC:this.fAtencion.temperaturaC?Number(this.fAtencion.temperaturaC):null}));
     this.toast.exito('Atención registrada.');this.panelAtencion.set(false);await this.recargarFicha();
   }catch(e){this.errorAtencion.set(mensajeDeError(e,'No se pudo registrar la atención.'));}finally{this.guardandoAtencion.set(false);}}
 

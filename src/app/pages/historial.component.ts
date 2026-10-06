@@ -52,7 +52,7 @@ const diaLima = (iso?: string) => iso ? new Date(iso).toLocaleDateString('en-CA'
       <button type="button" class="tarjeta rv-panel" (click)="ver(h)" title="Ver detalle completo">
         <div class="cabeza"><strong>{{h.motivo}}</strong><time>{{fechaUtc(h.fechaAtencion)}}</time></div>
         <p class="resumen"><b>Diagnóstico:</b> {{h.diagnostico}}</p>
-        <p class="resumen solo-impresion"><b>Tratamiento:</b> {{h.tratamiento}}@if(h.observaciones){<br><b>Observaciones:</b> {{h.observaciones}}}</p>
+        <p class="resumen solo-impresion"><b>Tratamiento:</b> {{h.tratamiento}}@if(h.receta){<br><b>Receta:</b> {{h.receta}}}@if(h.observaciones){<br><b>Observaciones:</b> {{h.observaciones}}}</p>
         <small>{{h.veterinarioNombre}}@if(h.citaId){ · Cita vinculada}@if(h.editado){ · <span class="editado" title="Corregida el {{fechaUtc(h.actualizadoEn)}}">editada</span>}</small>
       </button>
     </li>}
@@ -67,6 +67,7 @@ const diaLima = (iso?: string) => iso ? new Date(iso).toLocaleDateString('en-CA'
     <dt>Veterinario</dt><dd>{{h.veterinarioNombre}}</dd>
     <dt>Diagnóstico</dt><dd>{{h.diagnostico}}</dd>
     <dt>Tratamiento</dt><dd>{{h.tratamiento}}</dd>
+    <dt>Receta</dt><dd>{{h.receta||'—'}}</dd>
     <dt>Observaciones</dt><dd>{{h.observaciones||'—'}}</dd>
     <dt>Peso</dt><dd>{{h.pesoKg?h.pesoKg+' kg':'—'}}</dd>
     <dt>Temperatura</dt><dd>{{h.temperaturaC?h.temperaturaC+' °C':'—'}}</dd>
@@ -84,6 +85,7 @@ const diaLima = (iso?: string) => iso ? new Date(iso).toLocaleDateString('en-CA'
     <label class="rv-campo ancho">Motivo<input class="rv-input" name="motivo" [(ngModel)]="f.motivo" required maxlength="250"></label>
     <label class="rv-campo ancho">Diagnóstico<textarea class="rv-input" name="diag" [(ngModel)]="f.diagnostico" required maxlength="1000" rows="3"></textarea></label>
     <label class="rv-campo ancho">Tratamiento<textarea class="rv-input" name="trat" [(ngModel)]="f.tratamiento" required maxlength="1000" rows="3"></textarea></label>
+    <label class="rv-campo ancho">Receta (opcional)<textarea class="rv-input" name="receta" [(ngModel)]="f.receta" maxlength="2000" rows="3" placeholder="Medicamento, dosis, frecuencia y duración"></textarea></label>
     <label class="rv-campo">Peso kg<input class="rv-input" type="number" step="0.01" min="0.01" max="999.99" name="peso" [(ngModel)]="f.pesoKg"></label>
     <label class="rv-campo">Temperatura °C<input class="rv-input" type="number" step="0.1" min="30" max="45" name="temp" [(ngModel)]="f.temperaturaC"></label>
     <label class="rv-campo ancho">Observaciones<textarea class="rv-input" name="obs" [(ngModel)]="f.observaciones" maxlength="2000" rows="2"></textarea></label>
@@ -120,7 +122,7 @@ export class HistorialComponent{
   // Filtro en el navegador: palabra en cualquier texto clínico y rango de días de Lima.
   // Método (no computed): palabra/desde/hasta son propiedades de ngModel, no signals.
   filtrado(){const p=this.palabra.trim().toLowerCase();return this.historial().filter(h=>{const d=diaLima(h.fechaAtencion);
-    return(!p||[h.motivo,h.diagnostico,h.tratamiento,h.observaciones,h.veterinarioNombre].some(t=>(t??'').toLowerCase().includes(p)))&&(!this.desde||d>=this.desde)&&(!this.hasta||d<=this.hasta);});}
+    return(!p||[h.motivo,h.diagnostico,h.tratamiento,h.receta,h.observaciones,h.veterinarioNombre].some(t=>(t??'').toLowerCase().includes(p)))&&(!this.desde||d>=this.desde)&&(!this.hasta||d<=this.hasta);});}
 
   constructor(){
     this.cargarOpciones();
@@ -144,14 +146,14 @@ export class HistorialComponent{
   ver(h:any){this.detalle.set(h);}
   imprimir(){window.print();}
 
-  private vacio(){return{citaId:'',motivo:'',diagnostico:'',tratamiento:'',observaciones:'',pesoKg:'',temperaturaC:''};}
+  private vacio(){return{citaId:'',motivo:'',diagnostico:'',tratamiento:'',receta:'',observaciones:'',pesoKg:'',temperaturaC:''};}
   async nuevaAtencion(citaId?:number){const m=this.mascota();if(!m)return;this.editandoId=null;this.f=this.vacio();this.errorForm.set('');this.formulario.set(true);
     try{const c=await firstValueFrom(this.api.get(`/citas/mascota/${m.id}`,{estado:'programada'}));this.citasProgramadas.set(c);
       if(citaId){const cita=(c as any[]).find(x=>x.id===citaId);if(cita){this.f.citaId=String(citaId);this.f.motivo=cita.motivo;}}}catch{this.citasProgramadas.set([]);}}
-  editar(h:any){this.detalle.set(null);this.editandoId=h.id;this.f={citaId:'',motivo:h.motivo,diagnostico:h.diagnostico,tratamiento:h.tratamiento,observaciones:h.observaciones??'',pesoKg:h.pesoKg??'',temperaturaC:h.temperaturaC??''};this.errorForm.set('');this.formulario.set(true);}
+  editar(h:any){this.detalle.set(null);this.editandoId=h.id;this.f={citaId:'',motivo:h.motivo,diagnostico:h.diagnostico,tratamiento:h.tratamiento,receta:h.receta??'',observaciones:h.observaciones??'',pesoKg:h.pesoKg??'',temperaturaC:h.temperaturaC??''};this.errorForm.set('');this.formulario.set(true);}
 
   async guardar(){const m=this.mascota();if(!m)return;this.guardando.set(true);this.errorForm.set('');
-    const datos:any={motivo:this.f.motivo,diagnostico:this.f.diagnostico,tratamiento:this.f.tratamiento,observaciones:this.f.observaciones||null,pesoKg:this.f.pesoKg!==''&&this.f.pesoKg!=null?Number(this.f.pesoKg):null,temperaturaC:this.f.temperaturaC!==''&&this.f.temperaturaC!=null?Number(this.f.temperaturaC):null};
+    const datos:any={motivo:this.f.motivo,diagnostico:this.f.diagnostico,tratamiento:this.f.tratamiento,receta:this.f.receta||null,observaciones:this.f.observaciones||null,pesoKg:this.f.pesoKg!==''&&this.f.pesoKg!=null?Number(this.f.pesoKg):null,temperaturaC:this.f.temperaturaC!==''&&this.f.temperaturaC!=null?Number(this.f.temperaturaC):null};
     try{
       if(this.editandoId)await firstValueFrom(this.api.put(`/mascotas/${m.id}/historial/${this.editandoId}`,datos));
       else await firstValueFrom(this.api.post(`/mascotas/${m.id}/historial`,{...datos,citaId:this.f.citaId?Number(this.f.citaId):null}));
