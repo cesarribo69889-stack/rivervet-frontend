@@ -123,17 +123,12 @@ Hecho con nuestro stack (.NET + Angular en vez de Node/Express + Vue/FullCalenda
 
 ## Pendientes
 
-1. Borrar el pedido de prueba de Yape **RV-000003** (id 3, `pagado`, 1 ×
-   `ALI-GATO-HUMEDO-85G`, pagos `PRUEBA00001` rechazado y `PRUEBA00002`
-   aprobado) y devolver 1 unidad al stock (59 → 60). Con el admin de SQL, en una
-   transacción: `pagos`, `pedido_items` y `pedidos`, verificando el número de filas.
-   Confirmar si el usuario ya lo hizo antes de repetirlo.
-2. Yape es **provisional** (el del administrador): cambiarlo cuando el usuario
+1. Yape es **provisional** (el del administrador): cambiarlo cuando el usuario
    dé el de la clínica, con el nombre del titular (`Pagos__Yape__Celular` y
    `__Titular` en el App Service). WhatsApp (`WHATSAPP_CLINICA` en
    `src/app/core/constants.ts`) ya tiene el número nuevo que dio el usuario
    el 2026-10-06.
-3. Recordar al usuario cambiar la contraseña del admin (apareció en el chat).
+2. Recordar al usuario cambiar la contraseña del admin (apareció en el chat).
 
 ## Cuentas de prueba (las claves las tiene el usuario)
 
