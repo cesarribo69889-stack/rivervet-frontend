@@ -128,10 +128,11 @@ Hecho con nuestro stack (.NET + Angular en vez de Node/Express + Vue/FullCalenda
    aprobado) y devolver 1 unidad al stock (59 → 60). Con el admin de SQL, en una
    transacción: `pagos`, `pedido_items` y `pedidos`, verificando el número de filas.
    Confirmar si el usuario ya lo hizo antes de repetirlo.
-2. Yape y WhatsApp son **provisionales** (los del administrador): cambiarlos
-   cuando el usuario dé los de la clínica. Yape: `Pagos__Yape__Celular` y
-   `__Titular` en el App Service. WhatsApp: `WHATSAPP_CLINICA` en
-   `src/app/core/constants.ts`.
+2. Yape es **provisional** (el del administrador): cambiarlo cuando el usuario
+   dé el de la clínica, con el nombre del titular (`Pagos__Yape__Celular` y
+   `__Titular` en el App Service). WhatsApp (`WHATSAPP_CLINICA` en
+   `src/app/core/constants.ts`) ya tiene el número nuevo que dio el usuario
+   el 2026-10-06.
 3. Recordar al usuario cambiar la contraseña del admin (apareció en el chat).
 
 ## Cuentas de prueba (las claves las tiene el usuario)

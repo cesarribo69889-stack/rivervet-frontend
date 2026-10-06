@@ -38,7 +38,7 @@ export const METODO_PAGO: Record<string, string> = { yape: 'Yape', pasarela: 'Ta
 // WhatsApp de la clinica (9 digitos, sin +51) para que el triage ofrezca pedir
 // una cita: la API no deja agendar al cliente. Vacio = se muestra el horario
 // y se invita a acercarse a recepcion.
-export const WHATSAPP_CLINICA = '948447912';
+export const WHATSAPP_CLINICA = '923083898';
 
 // Sugerencias para el campo "vacuna" (datalist): el veterinario puede escribir
 // cualquier otra. Por especie, para no ofrecerle a un gato vacunas de perro.
