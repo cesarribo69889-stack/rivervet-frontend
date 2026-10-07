@@ -91,8 +91,11 @@ La suscripción solo permite `westus`, `northcentralus`, `chilecentral`,
   que mueven una cita al pasado, usar un bloque alineado. Columnas `eliminado` son BIT.
 - En el bundle de Angular las tildes van escapadas (`cl\xEDnico`): para buscar
   textos en el bundle publicado, usar la parte ASCII.
-- El ISP del usuario alterna IPs: la regla `PcDesarrollo` del firewall de Azure SQL
-  se desactualiza; usar la IP que muestra el error de `sqlcmd`.
+- El firewall de Azure SQL solo tiene `PermitirServiciosAzure` (desde 2026-10-07).
+  Para conectarse desde la PC, crear una regla temporal con la IP del día (el ISP
+  la cambia; usar la que muestra el error de `sqlcmd`) y borrarla al terminar.
+- Cambios de datos en producción por `sqlcmd` (DELETE/UPDATE): el permiso de Claude
+  los bloquea. Dejarle al usuario el script listo para que lo corra él.
 
 ## Estado de las HU (tablero Trello)
 
