@@ -3,17 +3,55 @@
 Sistema de un centro veterinario: citas, historial clínico, vacunas, tienda,
 pedidos y pagos. Español en código, comentarios, commits y respuestas.
 
+Este archivo es la **única fuente de contexto**: la memoria de Claude no pasa de
+una computadora a otra, así que todo lo que haga falta para seguir va aquí.
+
+## Retomar en otra computadora
+
+1. Clonar con la misma estructura (el repo `rivervet` es la carpeta raíz y el
+   frontend va clonado dentro de ella):
+   ```
+   git clone https://github.com/cesarribo69889-stack/rivervet.git RIVERVET
+   cd RIVERVET
+   git clone https://github.com/cesarribo69889-stack/rivervet-frontend.git veterinaria-frontend
+   cd veterinaria-frontend && npm ci
+   ```
+   En el repo `rivervet`, `veterinaria-frontend/` aparece como carpeta sin
+   seguimiento: es normal, no agregarla. `_respaldo-backend-node/` (la primera
+   versión en Node) existe solo en la PC original y no hace falta.
+2. Abrir Claude Code en `RIVERVET\veterinaria-frontend` (aquí está este archivo).
+3. Herramientas (versiones de la PC original): Git, GitHub CLI `gh` 2.100,
+   Node 24 (el CD usa 22), npm 11, .NET SDK 10.0.302 (`backend/global.json`),
+   Azure CLI 2.90 y `sqlcmd`. Opcionales: Visual Studio y SQL Server local (solo
+   para correr la API o sus pruebas en la PC).
+4. Iniciar sesión: `gh auth login` (cuenta `cesarribo69889-stack`), `az login`
+   (suscripción *Azure for Students*) y, solo para publicar a mano,
+   `npx vercel login` + `npx vercel link` (equipo "Dinamita", proyecto `rivervet`).
+5. Secretos: los guarda el usuario en su gestor de contraseñas (nota "RiverVet
+   producción": `SUFIJO`, `SQL_ADMIN_USUARIO`, `SQL_ADMIN_PASSWORD`,
+   `MIGRADOR_PASSWORD`, `APP_PASSWORD`, `JWT_SECRETO`, `ADMIN_APP_PASSWORD`).
+   Pedírselos solo cuando haga falta (migraciones o cambios directos en la BD);
+   si se copian a un archivo temporal, borrarlo al terminar (y vaciar la Papelera).
+6. Desarrollo local: `backend\configurar-desarrollo.ps1` crea la BD local, los
+   usuarios, los user-secrets, migra y carga datos (necesita SQL Server local;
+   guía en `backend/docs/INSTALACION.md`). La API queda en `http://localhost:3000`
+   y la web con `npm start`.
+
 ## Estructura
 
 | Carpeta | Qué es | Repo |
 |---|---|---|
-| `C:\Users\ricra\Desktop\RIVERVET\backend` | API .NET 10 + Dapper + SQL Server | `cesarribo69889-stack/rivervet` (privado) |
-| `C:\Users\ricra\Desktop\RIVERVET\veterinaria-frontend` | Angular 22 (este repo) | `cesarribo69889-stack/rivervet-frontend` (privado) |
+| `RIVERVET\` (raíz) con `backend\` y `.github\` | API .NET 10 + Dapper + SQL Server | `cesarribo69889-stack/rivervet` (privado) |
+| `RIVERVET\veterinaria-frontend` | Angular 22 (este repo) | `cesarribo69889-stack/rivervet-frontend` (privado) |
+
+En la PC original la carpeta es `C:\Users\ricra\Desktop\RIVERVET`.
 
 El backend ya cubre las 21 HU del tablero. **Antes de tocar una pantalla, lee
 el modelo C# de la respuesta** (`backend/src/RiverVet.Aplicacion/**/*Modelos.cs`):
 varios bugs vinieron de leer campos que la API no devuelve (`vacunaNombre` en
-vez de `tipoVacuna`, `ventasTotal`, `p.stock` en el catálogo público…).
+vez de `tipoVacuna`, `ventasTotal`, `p.stock` en el catálogo público…). Ojo
+también con las formas: un pedido viene aplanado (`{id, codigo, estado, total,
+items, pagos}`), no como `{pedido: …}`.
 
 ## Producción
 
@@ -21,23 +59,38 @@ vez de `tipoVacuna`, `ventasTotal`, `p.stock` en el catálogo público…).
 - API: `rivervet-api-5nua9h.azurewebsites.net` (App Service Windows F1, .NET 10)
 - BD: Azure SQL `rivervet_db` en `rivervet-sql-5nua9h` (serverless, oferta gratuita)
 - Grupo `rg-rivervet`, región **westus**, suscripción *Azure for Students*
+- Salud: `GET https://rivervet.vercel.app/api/health` → `estado: ok, baseDatos: ok`
 
-La tienda tiene 12 productos de ejemplo en 4 categorías (Alimentos, Snacks y
-premios, Accesorios, Higiene y cuidado), creados el 2026-10-06. La correa
-(`ACC-CORREA-120`) quedó con stock bajo a propósito para mostrar ese aviso.
+Datos que hay en producción:
+- 12 productos de ejemplo en 4 categorías (Alimentos, Snacks y premios,
+  Accesorios, Higiene y cuidado), del 2026-10-06. La correa (`ACC-CORREA-120`)
+  quedó con stock bajo a propósito para mostrar ese aviso.
+- Datos de demostración del Sprint 2: 4 clientes ficticios (`@example.com`,
+  teléfonos `9000001xx`, DNI `100001xx`) con 6 mascotas (Toby, Mía, Rocky,
+  Nala, Coco, Max), citas, atenciones y vacunas. Borrarlos si la clínica va a
+  usar el sistema con clientes reales.
+- Las cuentas de prueba (abajo). No hay pedidos: el de prueba de Yape se borró.
 
-La suscripción solo permite `westus`, `northcentralus`, `chilecentral`,
-`mexicocentral` y `canadacentral`; solo westus ofrece todo (SQL gratis + F1).
+### Azure: regiones
+
+La suscripción tiene la política "Allowed resource deployment regions": solo
+`westus`, `northcentralus`, `chilecentral`, `mexicocentral` y `canadacentral`.
+`eastus2` y `brazilsouth` están bloqueadas aunque Azure las recomiende;
+`chilecentral` acepta el servidor SQL pero no la base gratuita
+(`ProvisioningDisabled`). Solo **westus** ofrece todo (SQL gratis + F1 Windows).
 
 ## Arquitectura que no se debe romper
 
 - La web llama a `/api` en **su mismo origen** y `vercel.json` lo reescribe al
   App Service. Es obligatorio: las cookies `rv_refresh`/`rv_csrf` son
-  `SameSite=Strict` y en una llamada cruzada nunca viajarían.
+  `SameSite=Strict` (`backend/src/RiverVet.Api/Seguridad/CookiesSesion.cs`) y en
+  una llamada cruzada nunca viajarían. Otro hosting del frontend tendría que
+  hacer ese mismo proxy.
 - `src/environments/`: dev apunta a `http://localhost:3000/api`; prod a `/api`.
 - La BD se **pausa tras 60 min** sin uso: la primera petición recibe 500/503
-  unos 30-60 s. El login lo tolera (reintenta y consulta `/health`). No
-  desactivar la pausa: es lo que la mantiene dentro de la oferta gratuita.
+  ("Servicio no disponible") unos 30-60 s. El login lo tolera (reintenta y
+  consulta `/health`). No desactivar la pausa: es lo que la mantiene dentro de
+  la oferta gratuita.
 - Solo el rol **veterinario** registra atenciones y vacunas (ni el admin), y
   solo **el que la registró** puede corregirla o eliminarla (borrado lógico,
   auditado con el contenido anterior). Agendar/reprogramar citas e
@@ -45,27 +98,38 @@ La suscripción solo permite `westus`, `northcentralus`, `chilecentral`,
 - La API rechaza con **422** cualquier campo de un body que no conozca
   (`UnmappedMemberHandling.Disallow`). Si un cambio agrega un campo al
   contrato, el orden de despliegue es: migración → API → web, nunca al revés.
+- Las migraciones (`backend/database/migraciones/NNNN_*.sql`) son inmutables
+  (se verifica su hash) y llevan la reversión comentada al final. Se aplican
+  con `dotnet run --project src\RiverVet.Migrador -- verificar` y luego `migrar`,
+  usando el usuario `rivervet_migrador`. La última es `0005_receta_historial.sql`.
 
 ## Despliegue
 
 - **Frontend**: cada `push` a `main` publica solo (`.github/workflows/frontend-cd.yml`:
-  build → Vercel → health check → rollback si falla). Secretos en el environment
-  `produccion` de GitHub. El token de Vercel es `github-cd-rivervet`
-  (vence 2027-10-01; un token "solo proyecto" NO sirve).
-- Manual: `npx vercel --prod` (en PowerShell del usuario: `npx.cmd`, por la
-  ExecutionPolicy).
+  build → Vercel → health check → rollback si falla). En el environment
+  `produccion` de GitHub están los secretos `VERCEL_TOKEN`, `VERCEL_ORG_ID` y
+  `VERCEL_PROJECT_ID` y la variable `URL_FRONTEND_PRODUCCION`. El token de
+  Vercel es `github-cd-rivervet` (vence **2027-10-01**). Un token "solo
+  proyecto" NO sirve (falla con "Could not retrieve Project Settings"), y
+  `vercel tokens add` no funciona: los tokens se crean en vercel.com/account/tokens.
+  La cuenta de Vercel debe tener GitHub conectado (si no, los despliegues
+  quedan BLOCKED: "commit author doesn't have permission").
+- Manual: `npx vercel --prod` (en PowerShell con ExecutionPolicy restringida: `npx.cmd`).
 - **Backend**: su CD no está activo. Se publica a mano desde `main`:
   `dotnet publish src/RiverVet.Api -c Release -o publicacion -p:UseAppHost=false`,
   comprimir y `az webapp deploy --type zip`. Ramas: `develop` (integración) y
-  `main` (lo que está en producción).
-- **Pruebas del backend**: en esta PC NO corren (Windows Smart App Control bloquea
-  cargar `RiverVet.Api.dll`; no desactivarlo: no se puede volver a encender). Se
-  corren en el CI de GitHub, que tiene su propio SQL Server. El push NO dispara el
-  CI: lanzarlo con `gh workflow run backend-ci.yml --repo cesarribo69889-stack/rivervet --ref develop`.
+  `main` (lo que está en producción); hoy ambas en el mismo commit.
+- **Pruebas del backend**: en la PC original NO corren (Windows Smart App Control
+  bloquea cargar `RiverVet.Api.dll`; no desactivarlo: no se puede volver a
+  encender). En otra PC pueden correr con `dotnet test RiverVet.slnx` si hay SQL
+  Server local. La referencia es el CI de GitHub (formato, build, pruebas,
+  migraciones, gitleaks, CodeQL; 259/259 en verde). El push NO dispara el CI:
+  `gh workflow run backend-ci.yml --repo cesarribo69889-stack/rivervet --ref develop`.
   Antes de subir: `dotnet format RiverVet.slnx --verify-no-changes --severity warn`
   (el CI falla por el orden de los `using`).
 - Colección de Postman: `backend/docs/RiverVet.postman_collection.json`; se
-  regenera con `node herramientas/generar-coleccion-postman.mjs`.
+  regenera con `node herramientas/generar-coleccion-postman.mjs`. Documentación
+  de la API: `backend/docs/API.md`.
 - Configuración y secretos del backend: variables del App Service, nunca en el repo.
 
 ## Convenciones del código
@@ -76,6 +140,14 @@ La suscripción solo permite `westus`, `northcentralus`, `chilecentral`,
 - Errores: `mensajeDeError(e)`. Permisos: `auth.puede([...])` igual que la API.
 - Fechas de Lima como `'AAAA-MM-DD'` (`hoyLima()`, `fechaHoraLima`).
 - Verificar contra la API real y compilar con `npx ng build` antes de cerrar.
+- Commits en español; los de Claude terminan con la línea `Co-Authored-By`.
+
+## Lo que Claude no puede hacer (lo bloquea su sistema de permisos)
+
+Darle al usuario el comando o script listo para que lo corra él:
+- Escribir secretos en GitHub (`gh secret set`) o hacer públicos los repos.
+- Cambiar datos de producción por `sqlcmd` (DELETE/UPDATE).
+- Nunca imprimir secretos, ni escribirlos en el repo, en este archivo o en el chat.
 
 ## Trucos del entorno (Windows)
 
@@ -86,16 +158,18 @@ La suscripción solo permite `westus`, `northcentralus`, `chilecentral`,
 - PowerShell 5.1 lee un `.ps1` sin BOM como ANSI: las tildes de un script escrito
   desde Git Bash se rompen ("húmedo" → "hÃºmedo") antes de enviarse. Mantener los
   scripts en ASCII (texto con tildes en JSON aparte) o guardarlos con BOM.
-- `sqlcmd` necesita `SET QUOTED_IDENTIFIER ON` para borrar o modificar (hay índices filtrados).
+- `sqlcmd` necesita `SET QUOTED_IDENTIFIER ON` (o `-I`) para borrar o modificar
+  (hay índices filtrados). La clave va en `SQLCMDPASSWORD`, no en la línea de comandos.
 - `citas.fecha_hora` solo admite :00 o :30 exactos (`CK_citas_bloque`); en pruebas
   que mueven una cita al pasado, usar un bloque alineado. Columnas `eliminado` son BIT.
 - En el bundle de Angular las tildes van escapadas (`cl\xEDnico`): para buscar
   textos en el bundle publicado, usar la parte ASCII.
 - El firewall de Azure SQL solo tiene `PermitirServiciosAzure` (desde 2026-10-07).
-  Para conectarse desde la PC, crear una regla temporal con la IP del día (el ISP
-  la cambia; usar la que muestra el error de `sqlcmd`) y borrarla al terminar.
-- Cambios de datos en producción por `sqlcmd` (DELETE/UPDATE): el permiso de Claude
-  los bloquea. Dejarle al usuario el script listo para que lo corra él.
+  Para conectarse desde una PC, crear una regla temporal con la IP del día (el ISP
+  del usuario la cambia; usar la que muestra el error de `sqlcmd`) y borrarla al
+  terminar: `az sql server firewall-rule create|delete -g rg-rivervet -s rivervet-sql-5nua9h`.
+- No hay Python en la PC original: para editar archivos, usar las herramientas
+  de Claude o PowerShell.
 
 ## Estado de las HU (tablero Trello)
 
@@ -106,32 +180,51 @@ La suscripción solo permite `westus`, `northcentralus`, `chilecentral`,
   (pagar → rechazar → pagar → aprobar → `pagado`). Falta el QR
   (`public/yape-qr.png`, la web lo oculta si no existe).
 - HU-021 triage: "agendar" deriva a WhatsApp (la API no deja agendar al cliente).
-- HU-019 pasarela: solo existe la simulada; falta contratar un proveedor real.
+- HU-019 pasarela: solo existe la simulada (en producción responde 503); falta
+  que la clínica contrate un proveedor (Culqi, Niubiz, Izipay o Mercado Pago).
 
 ### Sprint 2 (tareas de Cesar y Mariano, 2026-10-06)
 
 Hecho con nuestro stack (.NET + Angular en vez de Node/Express + Vue/FullCalendar):
 - API: `/api/citas/mascota/{id}`, `/api/citas/veterinario/{id}`, `?mascotaId=`,
   `POST /api/citas/{id}/no-asistio`; detalle/PUT/DELETE de atenciones y vacunas;
-  `/api/dashboard/stats`, `/citas-hoy`, `/citas-semana`. Pruebas en
-  `Sprint2AmpliacionPruebas.cs` (CI: 259/259). Colección de Postman y API.md.
-- Web: páginas `/historial` (búsqueda, impresión, vincular atención a una cita)
-  y `/vacunas` (alertas "Urgente" < 7 días, sugerencias por especie); calendario
-  con vista Mes, clic para agendar, filtro por mascota, "Atender" y "No asistió";
-  panel del personal con tarjetas, citas de hoy y gráfico de la semana; migas de pan.
-- Datos de demostración en producción: 4 clientes ficticios (`@example.com`,
-  teléfonos `9000001xx`, DNI `100001xx`), 6 mascotas, citas, atenciones y vacunas.
+  receta en la atención (migración 0005); `/api/dashboard/stats`, `/citas-hoy`,
+  `/citas-semana`. Pruebas en `Sprint2AmpliacionPruebas.cs`. Postman y API.md.
+- Web: páginas `/historial` (búsqueda, impresión, receta, vincular atención a una
+  cita) y `/vacunas` (alertas "Urgente" < 7 días, sugerencias por especie);
+  calendario con vista Mes, clic para agendar, filtro por mascota, "Atender" y
+  "No asistió"; panel del personal con tarjetas, citas de hoy y gráfico de la
+  semana; migas de pan.
 - Estados de cita del sprint vs. los nuestros: pendiente→programada,
   completada→atendida; "confirmada" no existe; se agregó `no_asistio`.
+- Guion para la demo del Sprint Review (8 escenas, textos, capturas):
+  https://claude.ai/artifact/J8Hhfwh9UP6Y7TwcP5xEgm (privado; compartirlo
+  con Mariano desde el menú Compartir). Su HTML no está en el repo: para
+  cambiarlo, leerlo con la herramienta Artifact y volver a publicarlo en esa URL.
 
-## Pendientes
+## Pendientes (dependen del usuario)
 
-1. Yape es **provisional** (el del administrador): cambiarlo cuando el usuario
-   dé el de la clínica, con el nombre del titular (`Pagos__Yape__Celular` y
-   `__Titular` en el App Service). WhatsApp (`WHATSAPP_CLINICA` en
-   `src/app/core/constants.ts`) ya tiene el número nuevo que dio el usuario
-   el 2026-10-06.
-2. Recordar al usuario cambiar la contraseña del admin (apareció en el chat).
+1. **Cambiar la contraseña del admin** (apareció en un chat). La cambia el
+   usuario en Mi cuenta (`/perfil`) y actualiza `ADMIN_APP_PASSWORD` en su
+   gestor. Claude no la cambia: la nueva pasaría por el chat. Las claves de las
+   cuentas de prueba de veterinario y cliente también aparecieron en el chat.
+2. **Yape de la clínica**: hoy es el del administrador (provisional). Pedir el
+   número y el nombre del titular tal como sale en Yape y cambiar
+   `Pagos__Yape__Celular` y `Pagos__Yape__Titular` en el App Service (no requiere
+   publicar). WhatsApp (`WHATSAPP_CLINICA` en `src/app/core/constants.ts`) ya
+   tiene el número nuevo desde el 2026-10-06; solo lo usa el triage.
+3. **QR de Yape**: el usuario pasa la imagen; va en `public/yape-qr.png`.
+4. **Trello**: marcar como terminadas 001–018, 020 y 021 (019 en curso) y
+   cambiar el criterio de HU-020 por: "Cuando el pago está confirmado, recepción
+   puede enviar al cliente por WhatsApp un comprobante con el código del pedido,
+   el total y la fecha. Por la Ley 29733 de Protección de Datos Personales, el
+   comprobante no incluye el detalle de los productos." (No hay acceso a Trello
+   desde Claude.)
+5. **Sprint Review**: capturas y video, siguiendo el guion.
+6. Revisar la web en el navegador con las tres cuentas: se probó por la API y
+   compilando, pero no recorriéndola en pantalla.
+7. Los repos son privados. Si se hacen públicos, el número de WhatsApp queda en
+   el historial de git.
 
 ## Cuentas de prueba (las claves las tiene el usuario)
 
