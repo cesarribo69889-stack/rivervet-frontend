@@ -6,6 +6,16 @@ pedidos y pagos. Español en código, comentarios, commits y respuestas.
 Este archivo es la **única fuente de contexto**: la memoria de Claude no pasa de
 una computadora a otra, así que todo lo que haga falta para seguir va aquí.
 
+## Dónde quedamos (2026-10-08)
+
+- Todo el Sprint 2 y las HU 001–018, 020 y 021 están hechas y en producción.
+  Solo falta la pasarela real (HU-019), que depende de contratar un proveedor.
+- Último trabajo: "Métodos de pago" (Yape editable desde el panel, migración
+  0006), botón para eliminar productos en Inventario, el cliente usa solo el
+  diseño de la tienda, y la web quedó preparada y verificada en Google Search Console.
+- Repos al día en GitHub: backend `main` = `develop`; frontend `main`.
+- Lo que sigue depende del usuario: ver **Pendientes** al final.
+
 ## Retomar en otra computadora
 
 1. Clonar con la misma estructura (el repo `rivervet` es la carpeta raíz y el
@@ -211,17 +221,30 @@ Darle al usuario el comando o script listo para que lo corra él:
 
 ## Estado de las HU (tablero Trello)
 
-- ✅ 001–016, 018 y 020 completas.
+Revisado contra el tablero y las tareas del Sprint 2 el 2026-10-08.
+
+- ✅ **001–018, 020 y 021 completas** (todo el Sprint 2 = HU-006 a HU-012).
 - HU-020: el comprobante lleva solo código, total y fecha **por decisión del
   usuario** (Ley 29733; lo protege `Sprint4Pruebas.cs`). No agregar productos.
 - HU-017 Yape: activo y **probado de punta a punta en producción** el 2026-10-06
   (pagar → rechazar → pagar → aprobar → `pagado`). Desde el 2026-10-08 usa el
   Yape de la clínica (titular "Rivelino Mendoza"; la app de Yape lo muestra
   como "Rivelino Men"). Su QR (recortado de la captura que mandó la clínica)
-  está en la base desde "Métodos de pago"; si no hay QR, la web lo oculta.
+  está en la base desde "Métodos de pago"; si no hay QR, la web lo oculta. El
+  "número de operación" es obligatorio: Yape personal no avisa a la web, y
+  recepción lo usa para verificar el pago (y la base impide repetirlo).
 - HU-021 triage: "agendar" deriva a WhatsApp (la API no deja agendar al cliente).
-- HU-019 pasarela: solo existe la simulada (en producción responde 503); falta
-  que la clínica contrate un proveedor (Culqi, Niubiz, Izipay o Mercado Pago).
+  No hay bot de WhatsApp: ningún texto lo pide.
+- ❌ HU-019 pasarela: solo existe la simulada (en producción responde 503, y la
+  opción "Tarjeta" sigue visible **por decisión del usuario**); falta que la
+  clínica contrate un proveedor (Culqi, Niubiz, Izipay o Mercado Pago). Está
+  en el Product Backlog, no en el Sprint 2. Una cuenta bancaria o CCI NO sirve
+  para cobrar tarjetas (solo transferencias); el usuario descartó por ahora
+  agregar "Transferencia bancaria".
+
+Extras que no pide ninguna HU, hechos a pedido del usuario el 2026-10-08:
+"Métodos de pago" (Yape editable desde el panel), eliminar productos en el
+Inventario, el cliente sin panel (todo en el diseño de la tienda) y lo de Google.
 
 ### Sprint 2 (tareas de Cesar y Mariano, 2026-10-06)
 
@@ -237,6 +260,10 @@ Hecho con nuestro stack (.NET + Angular en vez de Node/Express + Vue/FullCalenda
   semana; migas de pan.
 - Estados de cita del sprint vs. los nuestros: pendiente→programada,
   completada→atendida; "confirmada" no existe; se agregó `no_asistio`.
+- Diferencias con el plan: el PDF sale desde "Imprimir"; arrastrar citas para
+  reagendar (opcional) no se hizo, se usa "Reprogramar"; las vacunas pendientes
+  salen de `/api/recordatorios` (HU-012) y el detalle de una atención es
+  `/api/historial/{id}`. Lo demás de Cesar y Mariano está hecho (CI: 262/262).
 - Guion para la demo del Sprint Review (8 escenas, textos, capturas):
   https://claude.ai/artifact/J8Hhfwh9UP6Y7TwcP5xEgm (privado; compartirlo
   con Mariano desde el menú Compartir). Su HTML no está en el repo: para
@@ -244,10 +271,14 @@ Hecho con nuestro stack (.NET + Angular en vez de Node/Express + Vue/FullCalenda
 
 ## Pendientes (dependen del usuario)
 
+No falta programación de ninguna HU salvo la pasarela real (HU-019).
+
 1. **Cambiar la contraseña del admin** (apareció en un chat). La cambia el
    usuario en Mi cuenta (`/perfil`) y actualiza `ADMIN_APP_PASSWORD` en su
    gestor. Claude no la cambia: la nueva pasaría por el chat. Las claves de las
    cuentas de prueba de veterinario y cliente también aparecieron en el chat.
+   El 2026-10-08 se le dejó `Descargas\rivervet-usuarios.txt` con las claves de
+   la app (a pedido suyo): recordarle pasarlas al gestor y borrarlo (Shift+Supr).
 2. **Trello**: marcar como terminadas 001–018, 020 y 021 (019 en curso) y
    cambiar el criterio de HU-020 por: "Cuando el pago está confirmado, recepción
    puede enviar al cliente por WhatsApp un comprobante con el código del pedido,
@@ -274,3 +305,5 @@ Hecho con nuestro stack (.NET + Angular en vez de Node/Express + Vue/FullCalenda
 - Admin: `cesarribo69889@gmail.com`
 - Veterinario: `cesarribo69889+vet@gmail.com`
 - Cliente: `cesarribo69889+cliente@gmail.com`
+- Cliente registrado aparte: `ricracesar970@gmail.com` (su clave no se conoce).
+- Los 4 clientes de demostración (`@example.com`) no tienen cuenta para entrar.
