@@ -238,9 +238,12 @@ Hecho con nuestro stack (.NET + Angular en vez de Node/Express + Vue/FullCalenda
 3b. **Google Search Console**: propiedad "Prefijo de URL" `https://rivervet.vercel.app/`
    (en la cuenta de Google del usuario), verificada con el archivo
    `public/googlec2017652cef6453e.html` (**no borrarlo**: sin él se pierde la
-   verificación). Falta que el usuario envíe `sitemap.xml` y pida la indexación
-   de `/`. Para aparecer en Maps, la clínica crea su Perfil de Empresa en Google
-   con la dirección real.
+   verificación). El 2026-10-08 se envió `sitemap.xml` (al principio Search
+   Console muestra "Couldn't fetch" hasta que Google lo lee; el archivo se
+   comprobó como Googlebot y está bien). "Request indexing" de `/` dio "Quota
+   Exceeded" ese día: el usuario lo reintenta otro día, una sola vez. Para
+   aparecer en Maps, la clínica crea su Perfil de Empresa en Google con la
+   dirección real.
 4. Revisar la web en el navegador con las tres cuentas: se probó por la API y
    compilando, pero no recorriéndola en pantalla.
 5. Los repos son privados. Si se hacen públicos, el número de WhatsApp queda en
