@@ -85,8 +85,9 @@ La suscripción tiene la política "Allowed resource deployment regions": solo
 `/orientacion`) y en `index.html` la descripción, las etiquetas `og:` para la
 vista previa en WhatsApp (`public/rivervet-compartir.jpg`, 600 px, < 300 KB), los
 datos `VeterinaryCare` (solo ciudad y horario: la web no muestra dirección ni
-teléfono) y un `<noscript>`. Sin `vercel.json` estos archivos no se rompen:
-Vercel sirve primero los archivos reales y después aplica el rewrite a `index.html`.
+teléfono) y un `<noscript>`. No hace falta tocar `vercel.json`: Vercel sirve
+primero los archivos reales y solo después aplica el rewrite a `index.html`.
+Falta que el usuario registre la web en Google Search Console (ver Pendientes).
 
 ## Arquitectura que no se debe romper
 
@@ -234,6 +235,11 @@ Hecho con nuestro stack (.NET + Angular en vez de Node/Express + Vue/FullCalenda
    comprobante no incluye el detalle de los productos." (No hay acceso a Trello
    desde Claude.)
 3. **Sprint Review**: capturas y video, siguiendo el guion.
+3b. **Google Search Console**: el usuario agrega la propiedad "Prefijo de URL"
+   `https://rivervet.vercel.app/`, elige verificar con "Etiqueta HTML" y pasa
+   el `content` de `google-site-verification`; va como `<meta>` en `index.html`.
+   Luego él envía `sitemap.xml` y pide la indexación de `/`. Para aparecer en
+   Maps, la clínica crea su Perfil de Empresa en Google con la dirección real.
 4. Revisar la web en el navegador con las tres cuentas: se probó por la API y
    compilando, pero no recorriéndola en pantalla.
 5. Los repos son privados. Si se hacen públicos, el número de WhatsApp queda en
