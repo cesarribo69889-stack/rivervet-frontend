@@ -235,11 +235,12 @@ Hecho con nuestro stack (.NET + Angular en vez de Node/Express + Vue/FullCalenda
    comprobante no incluye el detalle de los productos." (No hay acceso a Trello
    desde Claude.)
 3. **Sprint Review**: capturas y video, siguiendo el guion.
-3b. **Google Search Console**: el usuario agrega la propiedad "Prefijo de URL"
-   `https://rivervet.vercel.app/`, elige verificar con "Etiqueta HTML" y pasa
-   el `content` de `google-site-verification`; va como `<meta>` en `index.html`.
-   Luego él envía `sitemap.xml` y pide la indexación de `/`. Para aparecer en
-   Maps, la clínica crea su Perfil de Empresa en Google con la dirección real.
+3b. **Google Search Console**: propiedad "Prefijo de URL" `https://rivervet.vercel.app/`
+   (en la cuenta de Google del usuario), verificada con el archivo
+   `public/googlec2017652cef6453e.html` (**no borrarlo**: sin él se pierde la
+   verificación). Falta que el usuario envíe `sitemap.xml` y pida la indexación
+   de `/`. Para aparecer en Maps, la clínica crea su Perfil de Empresa en Google
+   con la dirección real.
 4. Revisar la web en el navegador con las tres cuentas: se probó por la API y
    compilando, pero no recorriéndola en pantalla.
 5. Los repos son privados. Si se hacen públicos, el número de WhatsApp queda en
