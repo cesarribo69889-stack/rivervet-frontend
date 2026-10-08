@@ -113,6 +113,11 @@ Falta que el usuario registre la web en Google Search Console (ver Pendientes).
   que reusan Carrito, Pedidos y Perfil). Todas las rutas del diseño interno
   (`/panel`, `/citas`, `/mascotas`, `/historial`, `/vacunas`, `/pedidos`,
   `/perfil`…) son solo del personal. Desde el 2026-10-08.
+- Inventario: el admin edita, ajusta stock y **elimina** productos (desde el
+  2026-10-08). Eliminar es borrado lógico (`eliminado = 1, activo = 0`): sale de
+  la tienda y del inventario, pero los pedidos anteriores lo conservan. No hay
+  botón para recuperarlo; se hace por SQL (`UPDATE dbo.productos SET eliminado = 0,
+  eliminado_en = NULL, activo = 1 WHERE id = …`), y ese script lo corre el usuario.
 - La API rechaza con **422** cualquier campo de un body que no conozca
   (`UnmappedMemberHandling.Disallow`). Si un cambio agrega un campo al
   contrato, el orden de despliegue es: migración → API → web, nunca al revés.

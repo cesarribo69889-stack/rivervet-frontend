@@ -24,7 +24,7 @@ import { ToastService } from '../core/toast.service';
 </form>
 @if(error()){<p class="rv-aviso rv-aviso--error">{{error()}}</p>}
 @if(cargando()){<p>Cargando inventario…</p>}@else{<div class="rv-tabla-wrap rv-panel"><table class="rv-tabla"><thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Estado</th><th></th></tr></thead><tbody>
-  @for(p of productos();track p.id){<tr [class.inactivo]="!p.activo"><td><strong>{{p.nombre}}</strong><br><small>{{p.sku}}</small></td><td>{{p.categoriaNombre}}</td><td>{{soles(p.precio)}}</td><td>{{cantidad(p.stock)}} <small>/ mín. {{p.stockMinimo}}</small></td><td><span class="rv-chip" [class.alerta]="p.activo&&p.stockBajo" [class.apagado]="!p.activo">{{!p.activo?'Inactivo':(p.stockBajo?'Stock bajo':'Disponible')}}</span></td><td>@if(auth.esAdmin()){<div class="rv-acciones"><button class="rv-boton rv-boton--sm rv-boton--contorno" (click)="editar(p)">Editar</button><button class="rv-boton rv-boton--sm rv-boton--contorno" (click)="abrirAjuste(p)">Stock</button></div>}</td></tr>}
+  @for(p of productos();track p.id){<tr [class.inactivo]="!p.activo"><td><strong>{{p.nombre}}</strong><br><small>{{p.sku}}</small></td><td>{{p.categoriaNombre}}</td><td>{{soles(p.precio)}}</td><td>{{cantidad(p.stock)}} <small>/ mín. {{p.stockMinimo}}</small></td><td><span class="rv-chip" [class.alerta]="p.activo&&p.stockBajo" [class.apagado]="!p.activo">{{!p.activo?'Inactivo':(p.stockBajo?'Stock bajo':'Disponible')}}</span></td><td>@if(auth.esAdmin()){<div class="rv-acciones"><button class="rv-boton rv-boton--sm rv-boton--contorno" (click)="editar(p)">Editar</button><button class="rv-boton rv-boton--sm rv-boton--contorno" (click)="abrirAjuste(p)">Stock</button><button class="rv-boton rv-boton--sm rv-boton--contorno peligro" (click)="eliminar(p)" [disabled]="eliminando()===p.id">{{eliminando()===p.id?'Eliminando…':'Eliminar'}}</button></div>}</td></tr>}
   @empty{<tr><td colspan="6" class="rv-vacio">No hay productos con estos filtros.@if(auth.esAdmin()){ Crea uno con “+ Nuevo producto”.}</td></tr>}
 </tbody></table></div>}
 @if(paginacion()?.totalPaginas>1){<div class="paginas"><button class="rv-boton rv-boton--sm rv-boton--contorno" [disabled]="filtros.pagina<=1" (click)="cargar(filtros.pagina-1)">Anterior</button><span>Página {{filtros.pagina}} de {{paginacion().totalPaginas}}</span><button class="rv-boton rv-boton--sm rv-boton--contorno" [disabled]="filtros.pagina>=paginacion().totalPaginas" (click)="cargar(filtros.pagina+1)">Siguiente</button></div>}
@@ -72,7 +72,7 @@ import { ToastService } from '../core/toast.service';
   <p class="nota">Una categoría inactiva y sus productos dejan de verse en la tienda.</p>
   @if(errorCategorias()){<p class="rv-aviso rv-aviso--error">{{errorCategorias()}}</p>}
 </div></div>}`,
-styles:[`small{color:var(--rv-texto-suave)}.check{display:flex;align-items:center;gap:.4rem;font-size:.85rem}
+styles:[`.peligro{color:var(--rv-error);border-color:#efc1bd}.peligro:hover:not(:disabled){background:#fdf0ef}small{color:var(--rv-texto-suave)}.check{display:flex;align-items:center;gap:.4rem;font-size:.85rem}
 tr.inactivo td{opacity:.6}.rv-chip.alerta{background:#fff4e0;color:#8a5208}.rv-chip.apagado{background:var(--rv-navy-50);color:var(--rv-texto-suave)}
 .paginas{display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:1.2rem}
 .nota{color:var(--rv-texto-suave);font-size:.8rem}.rv-modal textarea{font:inherit;resize:vertical}
@@ -90,7 +90,11 @@ export class InventarioComponent{
   constructor(){this.cargar();this.cargarCategorias();}
   vacio(){return{categoriaId:'',sku:'',nombre:'',descripcion:'',precio:null,stock:0,stockMinimo:5,imagenUrl:'',activo:true};}
 
-  async cargar(p=this.filtros.pagina){this.filtros.pagina=p;this.cargando.set(true);this.error.set('');try{
+  // Borrado lógico en la API: deja de verse en la tienda y en el inventario, pero
+// los pedidos anteriores lo conservan (y queda en la auditoría).
+eliminando=signal<number|null>(null);
+async eliminar(p:any){if(!confirm(`¿Eliminar "${p.nombre}"? Dejará de verse en la tienda y en el inventario. Los pedidos anteriores lo conservan.`))return;this.eliminando.set(p.id);try{await firstValueFrom(this.api.delete(`/productos/${p.id}`));this.toast.exito(`"${p.nombre}" eliminado.`);await this.cargar();}catch(e){this.toast.error(mensajeDeError(e));}finally{this.eliminando.set(null);}}
+async cargar(p=this.filtros.pagina){this.filtros.pagina=p;this.cargando.set(true);this.error.set('');try{
     const r=await firstValueFrom(this.api.get('/productos/inventario',paramsLimpios({...this.filtros,soloStockBajo:this.filtros.soloStockBajo||null,incluirInactivos:this.filtros.incluirInactivos||null})));
     this.productos.set(r.items??r);this.paginacion.set(r.paginacion);
   }catch(e){this.error.set(mensajeDeError(e));}finally{this.cargando.set(false);}}
