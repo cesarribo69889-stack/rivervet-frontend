@@ -18,6 +18,7 @@ import { Component, input } from '@angular/core';
         @case ('alert') { <path d='M12 3 2 20h20L12 3Z'/><path d='M12 10v4M12 17h.01'/> }
         @case ('medical') { <path d="M9 4h6M12 1v6M6 9h12v12H6z"/><path d="M9 15h6M12 12v6"/> }
         @case ('vaccine') { <path d="m18 2 4 4M17 7l2-2M5 13l6 6M3 21l4-4M9 15l8-8 2 2-8 8"/> }
+        @case ('wallet') { <path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M21 9h-5a3 3 0 0 0 0 6h5Z"/><path d="M16 12h.01"/> }
         @case ('refresh') { <path d="M20 6v5h-5M4 18v-5h5"/><path d="M18.5 9A7 7 0 0 0 6 6.5L4 9M5.5 15A7 7 0 0 0 18 17.5l2-2.5"/> }
         @default { <circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/> }
       }

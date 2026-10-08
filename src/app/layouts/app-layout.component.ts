@@ -82,6 +82,7 @@ export class AppLayoutComponent {
     { url: '/clientes', texto: 'Clientes', icono: 'users', roles: GRUPOS.PERSONAL },
     { url: '/inventario', texto: 'Inventario', icono: 'box', roles: GRUPOS.ADMIN_O_RECEPCION },
     { url: '/pedidos', texto: 'Pedidos', icono: 'receipt', roles: GRUPOS.ADMIN_O_RECEPCION },
+    { url: '/metodos-pago', texto: 'Métodos de pago', icono: 'wallet', roles: [ROLES.ADMIN] },
     { url: '/usuarios', texto: 'Usuarios', icono: 'shield', roles: [ROLES.ADMIN] }
   ];
   // Este diseño es solo del personal. El cliente usa el de la tienda

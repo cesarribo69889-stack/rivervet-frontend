@@ -4,7 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../core/api.service';
 import { AuthService } from '../core/auth.service';
-import { ESTADO_PAGO, ESTADO_PEDIDO, METODO_PAGO, ROLES } from '../core/constants';
+import { API_URL, ESTADO_PAGO, ESTADO_PEDIDO, METODO_PAGO, ROLES } from '../core/constants';
 import { fechaUtc, mensajeDeError, soles } from '../core/helpers';
 import { ToastService } from '../core/toast.service';
 
@@ -74,7 +74,7 @@ type Metodo = '' | 'yape' | 'tarjeta';
     <div class="metodos"><button type="button" [class.activo]="metodoElegido()==='yape'" (click)="elegirYape()">Yape</button><button type="button" [class.activo]="metodoElegido()==='tarjeta'" (click)="metodoElegido.set('tarjeta')">Tarjeta</button></div>
     @if(metodoElegido()==='yape'){
       @if(yape(); as y){<div class="yape">
-        @if(mostrarQr()){<img class="qr" src="yape-qr.png" alt="Código QR de Yape de RiverVet" (error)="mostrarQr.set(false)">}
+        @if(y.tieneQr&&mostrarQr()){<img class="qr" [src]="qrYape(y)" alt="Código QR de Yape de RiverVet" (error)="mostrarQr.set(false)">}
         <div><p class="monto">Paga {{soles(p.total)}}</p><p>Yapea al <strong>{{y.celular}}</strong>@if(y.titular){ a nombre de {{y.titular}}}</p><ol>@for(i of y.instrucciones;track $index){<li>{{i}}</li>}</ol></div>
       </div>
       <form class="sub" (ngSubmit)="pagarYape()"><label class="rv-campo">Número de operación<input class="rv-input" name="codigo" [(ngModel)]="codigoOperacion" required maxlength="30" placeholder="Aparece en tu constancia de Yape"></label><button class="rv-boton rv-boton--primario" [disabled]="ocupado()||!codigoOperacion.trim()">Ya pagué, registrar</button></form>}
@@ -142,7 +142,7 @@ export class PedidosComponent{
   pedidos=signal<any[]>([]);paginacion=signal<any>(null);cargando=signal(false);error=signal('');filtroEstado='';pagina=1;
   porVerificar=signal<any[]>([]);errorVerificar=signal('');rechazandoPago=signal<number|null>(null);observacionRechazo='';
   detalle=signal<any>(null);errorDetalle=signal('');ocupado=signal(false);
-  metodoElegido=signal<Metodo>('');yape=signal<any>(null);errorYape=signal('');mostrarQr=signal(true);codigoOperacion='';
+  metodoElegido=signal<Metodo>('');yape=signal<any>(null);errorYape=signal('');mostrarQr=signal(true);qrYape(y:any){return `${API_URL}/pagos/yape/qr?v=${y.qrVersion}`;}codigoOperacion='';
   panelComprobante=signal(false);comprobante=signal<any>(null);telefonoComprobante='';
   panelCancelar=signal(false);motivoCancelacion='';
 
