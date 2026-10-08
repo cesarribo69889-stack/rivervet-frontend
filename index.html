@@ -6,7 +6,34 @@
     <base href="/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#14295E">
-    <meta name="description" content="Rivervet — citas, historial clínico y tienda para tu mascota.">
+    <meta name="description" content="Rivervet, centro veterinario en Lima. Consultas, vacunas e historial clínico de tu mascota, tienda de alimentos y accesorios, y orientación sobre síntomas. Atendemos de lunes a sábado.">
+
+    <!-- Vista previa al compartir el enlace (WhatsApp, Facebook, etc.). -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Rivervet">
+    <meta property="og:locale" content="es_PE">
+    <meta property="og:url" content="https://rivervet.vercel.app/">
+    <meta property="og:title" content="Rivervet — Centro Veterinario en Lima">
+    <meta property="og:description" content="Consultas, vacunas e historial clínico de tu mascota, tienda en línea y orientación sobre síntomas.">
+    <meta property="og:image" content="https://rivervet.vercel.app/rivervet-compartir.jpg">
+    <meta property="og:image:width" content="600">
+    <meta property="og:image:height" content="600">
+    <meta name="twitter:card" content="summary">
+
+    <!-- Datos del negocio para Google. Solo lo que la web ya muestra. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VeterinaryCare",
+      "name": "Rivervet — Centro Veterinario",
+      "url": "https://rivervet.vercel.app/",
+      "logo": "https://rivervet.vercel.app/rivervet-compartir.jpg",
+      "image": "https://rivervet.vercel.app/rivervet-compartir.jpg",
+      "address": { "@type": "PostalAddress", "addressLocality": "Lima", "addressCountry": "PE" },
+      "openingHours": "Mo-Sa 08:00-20:00"
+    }
+    </script>
+
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,5 +41,11 @@
   </head>
   <body>
     <app-root></app-root>
+    <!-- Para buscadores o navegadores sin JavaScript: la web es una app de Angular. -->
+    <noscript>
+      <h1>Rivervet — Centro Veterinario en Lima</h1>
+      <p>Consultas, vacunas e historial clínico de tu mascota, tienda de alimentos y accesorios, y orientación sobre síntomas. Atendemos de lunes a sábado, de 08:00 a 20:00.</p>
+      <p><a href="/tienda">Tienda</a> · <a href="/orientacion">¿Es urgente? Orientación de síntomas</a></p>
+    </noscript>
   </body>
 </html>

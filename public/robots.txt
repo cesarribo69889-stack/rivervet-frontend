@@ -1,0 +1,20 @@
+# Rivervet: las páginas públicas se pueden indexar; las del sistema (detrás
+# del inicio de sesión) y la API no aportan nada a un buscador.
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /login
+Disallow: /panel
+Disallow: /citas
+Disallow: /mascotas
+Disallow: /historial
+Disallow: /vacunas
+Disallow: /clientes
+Disallow: /inventario
+Disallow: /carrito
+Disallow: /pedidos
+Disallow: /usuarios
+Disallow: /perfil
+Disallow: /sin-permiso
+
+Sitemap: https://rivervet.vercel.app/sitemap.xml

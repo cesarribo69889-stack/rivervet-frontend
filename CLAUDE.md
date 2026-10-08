@@ -79,6 +79,15 @@ La suscripción tiene la política "Allowed resource deployment regions": solo
 `chilecentral` acepta el servidor SQL pero no la base gratuita
 (`ProvisioningDisabled`). Solo **westus** ofrece todo (SQL gratis + F1 Windows).
 
+### Google (desde el 2026-10-08)
+
+`public/robots.txt` (indexa solo lo público), `public/sitemap.xml` (`/`, `/tienda`,
+`/orientacion`) y en `index.html` la descripción, las etiquetas `og:` para la
+vista previa en WhatsApp (`public/rivervet-compartir.jpg`, 600 px, < 300 KB), los
+datos `VeterinaryCare` (solo ciudad y horario: la web no muestra dirección ni
+teléfono) y un `<noscript>`. Sin `vercel.json` estos archivos no se rompen:
+Vercel sirve primero los archivos reales y después aplica el rewrite a `index.html`.
+
 ## Arquitectura que no se debe romper
 
 - La web llama a `/api` en **su mismo origen** y `vercel.json` lo reescribe al
