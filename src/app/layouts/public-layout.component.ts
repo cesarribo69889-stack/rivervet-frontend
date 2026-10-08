@@ -18,7 +18,7 @@ import { LogoComponent } from '../shared/logo.component';
           <a routerLink="/tienda" routerLinkActive="activo">Tienda</a>
           <a routerLink="/orientacion" routerLinkActive="activo">¿Es urgente?</a>
           <a routerLink="/" fragment="contacto">Contacto</a>
-          <a [routerLink]="auth.autenticado() ? '/panel' : '/login'" class="acceso">{{auth.autenticado() ? 'Ir al panel' : 'Acceso clientes'}} <span>→</span></a>
+          <a [routerLink]="!auth.autenticado() ? '/login' : auth.esPersonal() ? '/panel' : '/pedidos'" class="acceso">{{!auth.autenticado() ? 'Acceso clientes' : auth.esPersonal() ? 'Ir al panel' : 'Mis pedidos'}} <span>→</span></a>
         </nav>
       </div></header>
       <main><router-outlet/></main>

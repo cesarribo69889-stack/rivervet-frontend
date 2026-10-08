@@ -41,7 +41,7 @@ export class LoginComponent {
   readonly estadoApi=signal<'probando'|'ok'|'despertando'|'caida'>('probando');
   constructor(){this.comprobarApi();}
   private async comprobarApi(intento=1):Promise<void>{try{await firstValueFrom(this.api.get('/health'));this.estadoApi.set('ok');}catch(e){const codigo=(e as any)?.status;const despertando=codigo===503||codigo===504||codigo===0;if(despertando&&intento<8){this.estadoApi.set('despertando');setTimeout(()=>this.comprobarApi(intento+1),5000);}else{this.estadoApi.set(despertando?'despertando':'caida');}}}
-  async entrar():Promise<void>{this.enviando.set(true);this.error.set('');try{const s=await this.intentarLogin();this.toast.exito(`¡Hola, ${s.usuario.nombre}!`);await this.router.navigateByUrl(this.route.snapshot.queryParamMap.get('redirect')||'/panel');}catch(e){this.error.set(mensajeDeError(e,'No se pudo iniciar sesión.'));}finally{this.enviando.set(false);}}
+  async entrar():Promise<void>{this.enviando.set(true);this.error.set('');try{const s=await this.intentarLogin();this.toast.exito(`¡Hola, ${s.usuario.nombre}!`);await this.router.navigateByUrl(this.route.snapshot.queryParamMap.get('redirect')||this.auth.inicio());}catch(e){this.error.set(mensajeDeError(e,'No se pudo iniciar sesión.'));}finally{this.enviando.set(false);}}
   // Mientras la base despierta, el login puede responder 500 (la consulta
   // falla), no solo 503. Para no reintentar un 500 genuino se pregunta antes a
   // /health: si la base ya responde, el error es real y se muestra tal cual.

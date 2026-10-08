@@ -15,6 +15,9 @@ export class AuthService {
   readonly nombre = computed(() => this.usuario()?.nombre ?? '');
   readonly esAdmin = computed(() => this.rol() === ROLES.ADMIN);
   readonly esPersonal = computed(() => GRUPOS.PERSONAL.includes(this.rol()));
+  // Página de entrada: el personal llega a su panel; el cliente, a la tienda
+  // (ninguna HU le pide un panel: las suyas son catálogo, carrito, pedidos y pagos).
+  readonly inicio = computed(() => this.rol() === ROLES.CLIENTE ? '/tienda' : '/panel');
   private arranque?: Promise<any>;
   private timer?: ReturnType<typeof setTimeout>;
 

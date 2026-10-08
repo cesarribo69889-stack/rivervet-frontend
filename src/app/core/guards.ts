@@ -16,5 +16,5 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
 export const guestGuard: CanActivateFn = async () => {
   const auth = inject(AuthService); const router = inject(Router);
   await auth.initialize();
-  return auth.autenticado() ? router.createUrlTree(['/panel']) : true;
+  return auth.autenticado() ? router.createUrlTree([auth.inicio()]) : true;
 };

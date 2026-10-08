@@ -95,6 +95,10 @@ La suscripción tiene la política "Allowed resource deployment regions": solo
   solo **el que la registró** puede corregirla o eliminarla (borrado lógico,
   auditado con el contenido anterior). Agendar/reprogramar citas e
   inasistencia: admin y recepción. Carrito: solo cliente.
+- El **cliente no tiene panel** (ninguna HU lo pide; HU-018 y HU-012 son del
+  administrador). Al entrar va a la Tienda (`auth.inicio()`), y su menú es Tienda,
+  Mi carrito, Mis pedidos, Mis mascotas y Orientación. Panel, Agenda, Historial
+  y Vacunas son rutas de `GRUPOS.PERSONAL` (desde el 2026-10-08).
 - La API rechaza con **422** cualquier campo de un body que no conozca
   (`UnmappedMemberHandling.Disallow`). Si un cambio agrega un campo al
   contrato, el orden de despliegue es: migración → API → web, nunca al revés.

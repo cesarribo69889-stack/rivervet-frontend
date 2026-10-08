@@ -31,13 +31,13 @@ import { LogoComponent } from '../shared/logo.component';
           <strong>¿Necesitas ayuda?</strong>
           <small>Contacta con recepción</small>
         </div>
-        <a routerLink="/tienda" class="sidebar__tienda"><app-icon name="shop"/> Ir a la tienda</a>
+        @if (auth.esPersonal()) { <a routerLink="/tienda" class="sidebar__tienda"><app-icon name="shop"/> Ir a la tienda</a> }
       </aside>
 
       <section class="workspace">
         <header class="topbar">
           <button class="menu-btn" (click)="menu.update(v => !v)" aria-label="Abrir menú" title="Abrir menú">☰</button>
-          <div class="topbar__titulo"><nav class="migas" aria-label="Estás en"><a routerLink="/panel">Inicio</a>@if(titulo()!=='Panel'&&titulo()!=='Resumen'){<span aria-hidden="true">›</span><span>{{titulo()}}</span>}</nav><h1>{{titulo()}}</h1></div>
+          <div class="topbar__titulo"><nav class="migas" aria-label="Estás en"><a [routerLink]="auth.inicio()">Inicio</a>@if(titulo()!=='Panel'&&titulo()!=='Resumen'){<span aria-hidden="true">›</span><span>{{titulo()}}</span>}</nav><h1>{{titulo()}}</h1></div>
           <div class="topbar__usuario">
             <a routerLink="/perfil" class="perfil-link" title="Mi cuenta">
               <img src="rivervet-profile.png" alt="Perfil de Rivervet">
@@ -73,18 +73,23 @@ export class AppLayoutComponent {
   private readonly toast = inject(ToastService);
   readonly menu = signal(false);
   readonly titulo = signal('Panel');
-  readonly enlaces = [
-    { url: '/panel', texto: 'Resumen', icono: 'home', roles: GRUPOS.TODOS },
-    { url: '/citas', texto: 'Agenda y citas', icono: 'calendar', roles: GRUPOS.TODOS },
-    { url: '/mascotas', texto: 'Mascotas', icono: 'paw', roles: GRUPOS.TODOS },
-    { url: '/historial', texto: 'Historial clínico', icono: 'medical', roles: GRUPOS.TODOS },
-    { url: '/vacunas', texto: 'Vacunas', icono: 'vaccine', roles: GRUPOS.TODOS },
+  readonly enlaces: { url: string; texto: string; icono: string; roles: readonly string[] }[] = [
+    { url: '/panel', texto: 'Resumen', icono: 'home', roles: GRUPOS.PERSONAL },
+    { url: '/citas', texto: 'Agenda y citas', icono: 'calendar', roles: GRUPOS.PERSONAL },
+    { url: '/mascotas', texto: 'Mascotas', icono: 'paw', roles: GRUPOS.PERSONAL },
+    { url: '/historial', texto: 'Historial clínico', icono: 'medical', roles: GRUPOS.PERSONAL },
+    { url: '/vacunas', texto: 'Vacunas', icono: 'vaccine', roles: GRUPOS.PERSONAL },
     { url: '/clientes', texto: 'Clientes', icono: 'users', roles: GRUPOS.PERSONAL },
     { url: '/inventario', texto: 'Inventario', icono: 'box', roles: GRUPOS.ADMIN_O_RECEPCION },
     { url: '/pedidos', texto: 'Pedidos', icono: 'receipt', roles: GRUPOS.ADMIN_O_RECEPCION },
-    { url: '/pedidos', texto: 'Mis pedidos', icono: 'receipt', roles: [ROLES.CLIENTE] },
+    { url: '/usuarios', texto: 'Usuarios', icono: 'shield', roles: [ROLES.ADMIN] },
+    // El cliente no tiene panel: solo lo que piden sus HU (tienda, carrito,
+    // pedidos y orientación) y la ficha de sus mascotas.
+    { url: '/tienda', texto: 'Tienda', icono: 'shop', roles: [ROLES.CLIENTE] },
     { url: '/carrito', texto: 'Mi carrito', icono: 'cart', roles: [ROLES.CLIENTE] },
-    { url: '/usuarios', texto: 'Usuarios', icono: 'shield', roles: [ROLES.ADMIN] }
+    { url: '/pedidos', texto: 'Mis pedidos', icono: 'receipt', roles: [ROLES.CLIENTE] },
+    { url: '/mascotas', texto: 'Mis mascotas', icono: 'paw', roles: [ROLES.CLIENTE] },
+    { url: '/orientacion', texto: 'Orientación', icono: 'alert', roles: [ROLES.CLIENTE] }
   ];
   readonly visibles = computed(() => this.enlaces.filter(e => e.roles.includes(this.auth.rol())));
   readonly rol = computed(() => NOMBRE_ROL[this.auth.rol()] ?? '');

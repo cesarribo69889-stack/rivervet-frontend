@@ -5,7 +5,7 @@ import { Component, inject, signal } from '@angular/core';import { FormsModule }
 @if(ficha()){<div class="rv-modal-fondo" (click)="cerrarFicha()"><div class="rv-modal" (click)="$event.stopPropagation()">
   <div class="rv-modal__cabecera"><h2>Ficha de {{activa()?.nombre}}</h2><button (click)="cerrarFicha()">×</button></div>
   <p>{{activa()?.especie}} · {{activa()?.raza||'Sin raza'}} · Nacimiento: {{fechaCorta(activa()?.fechaNacimiento)}}</p>
-  <div class="enlaces-ficha"><a routerLink="/historial" [queryParams]="{mascota:activa()?.id}">Historial completo, búsqueda e impresión →</a><a routerLink="/vacunas" [queryParams]="{mascota:activa()?.id}">Vacunas y próximas dosis →</a></div>
+  @if(auth.esPersonal()){<div class="enlaces-ficha"><a routerLink="/historial" [queryParams]="{mascota:activa()?.id}">Historial completo, búsqueda e impresión →</a><a routerLink="/vacunas" [queryParams]="{mascota:activa()?.id}">Vacunas y próximas dosis →</a></div>}
 
   <div class="seccion"><h3>Historial clínico</h3>@if(esVeterinario){<button class="rv-boton rv-boton--sm rv-boton--contorno" (click)="alternarAtencion()">{{panelAtencion()?'Cancelar':'+ Atención'}}</button>}</div>
   @if(panelAtencion()){<form class="formulario" (ngSubmit)="guardarAtencion()">
