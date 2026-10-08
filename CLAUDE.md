@@ -131,6 +131,10 @@ La suscripción tiene la política "Allowed resource deployment regions": solo
   regenera con `node herramientas/generar-coleccion-postman.mjs`. Documentación
   de la API: `backend/docs/API.md`.
 - Configuración y secretos del backend: variables del App Service, nunca en el repo.
+  Yape: `Pagos__Yape__Celular` y `Pagos__Yape__Titular` (cambiarlos reinicia la
+  API, no hace falta publicar; con `az`, pasar `--settings @archivo.json`).
+  WhatsApp de la clínica: `WHATSAPP_CLINICA` en `src/app/core/constants.ts`
+  (solo lo usa el triage). Ambos son de la clínica desde el 2026-10-08.
 
 ## Convenciones del código
 
@@ -177,8 +181,10 @@ Darle al usuario el comando o script listo para que lo corra él:
 - HU-020: el comprobante lleva solo código, total y fecha **por decisión del
   usuario** (Ley 29733; lo protege `Sprint4Pruebas.cs`). No agregar productos.
 - HU-017 Yape: activo y **probado de punta a punta en producción** el 2026-10-06
-  (pagar → rechazar → pagar → aprobar → `pagado`). Falta el QR
-  (`public/yape-qr.png`, la web lo oculta si no existe).
+  (pagar → rechazar → pagar → aprobar → `pagado`). Desde el 2026-10-08 usa el
+  Yape de la clínica (titular "Rivelino Mendoza"; la app de Yape lo muestra
+  como "Rivelino Men") y su QR en `public/yape-qr.png`, recortado de la captura
+  que mandó la clínica. Si falta el archivo, la web oculta el QR.
 - HU-021 triage: "agendar" deriva a WhatsApp (la API no deja agendar al cliente).
 - HU-019 pasarela: solo existe la simulada (en producción responde 503); falta
   que la clínica contrate un proveedor (Culqi, Niubiz, Izipay o Mercado Pago).
@@ -208,22 +214,16 @@ Hecho con nuestro stack (.NET + Angular en vez de Node/Express + Vue/FullCalenda
    usuario en Mi cuenta (`/perfil`) y actualiza `ADMIN_APP_PASSWORD` en su
    gestor. Claude no la cambia: la nueva pasaría por el chat. Las claves de las
    cuentas de prueba de veterinario y cliente también aparecieron en el chat.
-2. **Yape de la clínica**: hoy es el del administrador (provisional). Pedir el
-   número y el nombre del titular tal como sale en Yape y cambiar
-   `Pagos__Yape__Celular` y `Pagos__Yape__Titular` en el App Service (no requiere
-   publicar). WhatsApp (`WHATSAPP_CLINICA` en `src/app/core/constants.ts`) ya
-   tiene el número nuevo desde el 2026-10-06; solo lo usa el triage.
-3. **QR de Yape**: el usuario pasa la imagen; va en `public/yape-qr.png`.
-4. **Trello**: marcar como terminadas 001–018, 020 y 021 (019 en curso) y
+2. **Trello**: marcar como terminadas 001–018, 020 y 021 (019 en curso) y
    cambiar el criterio de HU-020 por: "Cuando el pago está confirmado, recepción
    puede enviar al cliente por WhatsApp un comprobante con el código del pedido,
    el total y la fecha. Por la Ley 29733 de Protección de Datos Personales, el
    comprobante no incluye el detalle de los productos." (No hay acceso a Trello
    desde Claude.)
-5. **Sprint Review**: capturas y video, siguiendo el guion.
-6. Revisar la web en el navegador con las tres cuentas: se probó por la API y
+3. **Sprint Review**: capturas y video, siguiendo el guion.
+4. Revisar la web en el navegador con las tres cuentas: se probó por la API y
    compilando, pero no recorriéndola en pantalla.
-7. Los repos son privados. Si se hacen públicos, el número de WhatsApp queda en
+5. Los repos son privados. Si se hacen públicos, el número de WhatsApp queda en
    el historial de git.
 
 ## Cuentas de prueba (las claves las tiene el usuario)
