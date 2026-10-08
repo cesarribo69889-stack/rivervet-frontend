@@ -117,9 +117,17 @@ Falta que el usuario registre la web en Google Search Console (ver Pendientes).
   (`UnmappedMemberHandling.Disallow`). Si un cambio agrega un campo al
   contrato, el orden de despliegue es: migración → API → web, nunca al revés.
 - Las migraciones (`backend/database/migraciones/NNNN_*.sql`) son inmutables
-  (se verifica su hash) y llevan la reversión comentada al final. Se aplican
-  con `dotnet run --project src\RiverVet.Migrador -- verificar` y luego `migrar`,
-  usando el usuario `rivervet_migrador`. La última es `0005_receta_historial.sql`.
+  (se verifica su hash) y llevan la reversión comentada al final. La última es
+  `0006_configuracion_yape.sql` (aplicada en producción el 2026-10-08). Para
+  aplicarlas en producción, abrir el firewall a la IP del día y que el
+  **usuario** corra uno de estos scripts (piden la clave de `rivervet_migrador`
+  al ejecutarse, sin que pase por el chat):
+  - `backend\herramientas\migrar-produccion.ps1`: verificar → migrar → esquema
+    con el migrador.
+  - `backend\herramientas\aplicar-migracion-sqlcmd.ps1 NNNN_x.sql`: aplica una
+    con `sqlcmd` y la registra con el mismo hash. En la PC original hay que usar
+    este: Smart App Control bloquea `RiverVet.Migrador.dll` cada vez que se recompila.
+  Comando: `powershell -ExecutionPolicy Bypass -File <ruta del script> [migración]`.
 
 ## Despliegue
 
@@ -149,10 +157,13 @@ Falta que el usuario registre la web en Google Search Console (ver Pendientes).
   regenera con `node herramientas/generar-coleccion-postman.mjs`. Documentación
   de la API: `backend/docs/API.md`.
 - Configuración y secretos del backend: variables del App Service, nunca en el repo.
-  Yape: `Pagos__Yape__Celular` y `Pagos__Yape__Titular` (cambiarlos reinicia la
-  API, no hace falta publicar; con `az`, pasar `--settings @archivo.json`).
-  WhatsApp de la clínica: `WHATSAPP_CLINICA` en `src/app/core/constants.ts`
-  (solo lo usa el triage). Ambos son de la clínica desde el 2026-10-08.
+  **Yape se edita desde el panel**: "Métodos de pago" (`/metodos-pago`, solo
+  admin) cambia número, titular y QR, que se guardan en `dbo.configuracion_yape`
+  (el QR también: `GET /api/pagos/yape/qr?v=…`, público y cacheable). Las
+  variables del App Service `Pagos__Yape__Celular` y `__Titular` solo rigen si
+  esa tabla no tiene número (respaldo). WhatsApp de la clínica:
+  `WHATSAPP_CLINICA` en `src/app/core/constants.ts` (solo lo usa el triage).
+  Ambos son de la clínica desde el 2026-10-08.
 
 ## Convenciones del código
 
@@ -201,8 +212,8 @@ Darle al usuario el comando o script listo para que lo corra él:
 - HU-017 Yape: activo y **probado de punta a punta en producción** el 2026-10-06
   (pagar → rechazar → pagar → aprobar → `pagado`). Desde el 2026-10-08 usa el
   Yape de la clínica (titular "Rivelino Mendoza"; la app de Yape lo muestra
-  como "Rivelino Men") y su QR en `public/yape-qr.png`, recortado de la captura
-  que mandó la clínica. Si falta el archivo, la web oculta el QR.
+  como "Rivelino Men"). Su QR (recortado de la captura que mandó la clínica)
+  está en la base desde "Métodos de pago"; si no hay QR, la web lo oculta.
 - HU-021 triage: "agendar" deriva a WhatsApp (la API no deja agendar al cliente).
 - HU-019 pasarela: solo existe la simulada (en producción responde 503); falta
   que la clínica contrate un proveedor (Culqi, Niubiz, Izipay o Mercado Pago).
