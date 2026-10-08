@@ -66,6 +66,6 @@ export class CarritoComponent{
   async confirmar(){this.confirmando.set(true);this.ocupado.set(true);this.errorConfirmar.set('');try{
     const pedido=await firstValueFrom(this.api.post('/pedidos'));
     this.toast.exito(`Pedido ${pedido.codigo} creado. Ahora elige cómo pagar.`);
-    await this.router.navigate(['/pedidos'],{queryParams:{id:pedido.id}});
+    await this.router.navigate(['/mis-pedidos'],{queryParams:{id:pedido.id}});
   }catch(e){this.errorConfirmar.set(mensajeDeError(e,'No se pudo confirmar el pedido.'));await this.cargar();}finally{this.confirmando.set(false);this.ocupado.set(false);}}
 }

@@ -31,7 +31,7 @@ import { LogoComponent } from '../shared/logo.component';
           <strong>¿Necesitas ayuda?</strong>
           <small>Contacta con recepción</small>
         </div>
-        @if (auth.esPersonal()) { <a routerLink="/tienda" class="sidebar__tienda"><app-icon name="shop"/> Ir a la tienda</a> }
+        <a routerLink="/tienda" class="sidebar__tienda"><app-icon name="shop"/> Ir a la tienda</a>
       </aside>
 
       <section class="workspace">
@@ -82,15 +82,10 @@ export class AppLayoutComponent {
     { url: '/clientes', texto: 'Clientes', icono: 'users', roles: GRUPOS.PERSONAL },
     { url: '/inventario', texto: 'Inventario', icono: 'box', roles: GRUPOS.ADMIN_O_RECEPCION },
     { url: '/pedidos', texto: 'Pedidos', icono: 'receipt', roles: GRUPOS.ADMIN_O_RECEPCION },
-    { url: '/usuarios', texto: 'Usuarios', icono: 'shield', roles: [ROLES.ADMIN] },
-    // El cliente no tiene panel: solo lo que piden sus HU (tienda, carrito,
-    // pedidos y orientación) y la ficha de sus mascotas.
-    { url: '/tienda', texto: 'Tienda', icono: 'shop', roles: [ROLES.CLIENTE] },
-    { url: '/carrito', texto: 'Mi carrito', icono: 'cart', roles: [ROLES.CLIENTE] },
-    { url: '/pedidos', texto: 'Mis pedidos', icono: 'receipt', roles: [ROLES.CLIENTE] },
-    { url: '/mascotas', texto: 'Mis mascotas', icono: 'paw', roles: [ROLES.CLIENTE] },
-    { url: '/orientacion', texto: 'Orientación', icono: 'alert', roles: [ROLES.CLIENTE] }
+    { url: '/usuarios', texto: 'Usuarios', icono: 'shield', roles: [ROLES.ADMIN] }
   ];
+  // Este diseño es solo del personal. El cliente usa el de la tienda
+  // (carrito, mis pedidos y mi cuenta en AreaClienteComponent).
   readonly visibles = computed(() => this.enlaces.filter(e => e.roles.includes(this.auth.rol())));
   readonly rol = computed(() => NOMBRE_ROL[this.auth.rol()] ?? '');
 

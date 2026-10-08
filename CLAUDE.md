@@ -105,10 +105,14 @@ Falta que el usuario registre la web en Google Search Console (ver Pendientes).
   solo **el que la registró** puede corregirla o eliminarla (borrado lógico,
   auditado con el contenido anterior). Agendar/reprogramar citas e
   inasistencia: admin y recepción. Carrito: solo cliente.
-- El **cliente no tiene panel** (ninguna HU lo pide; HU-018 y HU-012 son del
-  administrador). Al entrar va a la Tienda (`auth.inicio()`), y su menú es Tienda,
-  Mi carrito, Mis pedidos, Mis mascotas y Orientación. Panel, Agenda, Historial
-  y Vacunas son rutas de `GRUPOS.PERSONAL` (desde el 2026-10-08).
+- El **cliente nunca entra al diseño interno** (menú lateral): ninguna HU le pide
+  un panel (HU-018 y HU-012 son del administrador). Al entrar va a la Tienda
+  (`auth.inicio()`) y todo lo suyo vive en el diseño público, con la cabecera
+  Inicio · Tienda · ¿Es urgente? · Mi carrito · Mis pedidos · Mi cuenta · Salir:
+  `/carrito`, `/mis-pedidos` y `/mi-cuenta` (hijas de `AreaClienteComponent`,
+  que reusan Carrito, Pedidos y Perfil). Todas las rutas del diseño interno
+  (`/panel`, `/citas`, `/mascotas`, `/historial`, `/vacunas`, `/pedidos`,
+  `/perfil`…) son solo del personal. Desde el 2026-10-08.
 - La API rechaza con **422** cualquier campo de un body que no conozca
   (`UnmappedMemberHandling.Disallow`). Si un cambio agrega un campo al
   contrato, el orden de despliegue es: migración → API → web, nunca al revés.
