@@ -97,7 +97,7 @@ vista previa en WhatsApp (`public/rivervet-compartir.jpg`, 600 px, < 300 KB), lo
 datos `VeterinaryCare` (solo ciudad y horario: la web no muestra dirección ni
 teléfono) y un `<noscript>`. No hace falta tocar `vercel.json`: Vercel sirve
 primero los archivos reales y solo después aplica el rewrite a `index.html`.
-Falta que el usuario registre la web en Google Search Console (ver Pendientes).
+Registrada y verificada en Google Search Console; indexada desde el 2026-10-09.
 
 ## Arquitectura que no se debe romper
 
@@ -291,10 +291,11 @@ No falta programación de ninguna HU salvo la pasarela real (HU-019).
    `public/googlec2017652cef6453e.html` (**no borrarlo**: sin él se pierde la
    verificación). El 2026-10-08 se envió `sitemap.xml` (al principio Search
    Console muestra "Couldn't fetch" hasta que Google lo lee; el archivo se
-   comprobó como Googlebot y está bien). "Request indexing" de `/` dio "Quota
-   Exceeded" ese día: el usuario lo reintenta otro día, una sola vez. Para
-   aparecer en Maps, la clínica crea su Perfil de Empresa en Google con la
-   dirección real.
+   comprobó como Googlebot y está bien). **El 2026-10-09 la página ya figura
+   indexada** ("URL is on Google", "Page is indexed"): no hace falta "Request
+   indexing" salvo que la página cambie. Para subir en los resultados: que la
+   clínica cree su Perfil de Empresa en Google (Maps) con la dirección real y
+   ponga el enlace en sus redes.
 4. Revisar la web en el navegador con las tres cuentas: se probó por la API y
    compilando, pero no recorriéndola en pantalla.
 5. Los repos son privados. Si se hacen públicos, el número de WhatsApp queda en
