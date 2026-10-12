@@ -80,7 +80,7 @@ Datos que hay en producción:
   Nala, Coco, Max), citas, atenciones y vacunas. Borrarlos si la clínica va a
   usar el sistema con clientes reales.
 - Las cuentas de prueba (abajo). El pedido de prueba de Yape (RV-000003) se
-  borró, pero al 2026-10-11 hay 4 pedidos nuevos del cliente de prueba
+  borró, pero al 2026-10-11 hay 4 pedidos nuevos (3 del cliente de prueba y 1 de otra cuenta de cliente)
   (RV-000004 a RV-000007, S/ 4.50 cada uno, `pendiente_pago`) de las pruebas del
   usuario: cada uno descontó 1 unidad de stock. Si son pruebas, cancelarlos
   (Mis pedidos → Cancelar, o Pedidos en el panel) devuelve el stock.
