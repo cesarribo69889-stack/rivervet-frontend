@@ -123,10 +123,13 @@ Registrada y verificada en Google Search Console; indexada desde el 2026-10-09.
   ("Servicio no disponible") unos 30-60 s. El login lo tolera (reintenta y
   consulta `/health`). No desactivar la pausa: es lo que la mantiene dentro de
   la oferta gratuita.
-- Solo el rol **veterinario** registra atenciones y vacunas (ni el admin), y
-  solo **el que la registró** puede corregirla o eliminarla (borrado lógico,
-  auditado con el contenido anterior). Agendar/reprogramar citas e
-  inasistencia: admin y recepción. Carrito: solo cliente.
+- Atenciones y vacunas las registran el **veterinario y el admin** (`Roles.Clinico`;
+  el admin es el dueño de la clínica y HU-006/HU-011 dicen "Como administrador",
+  desde el 2026-10-11). Las corrige o elimina **quien la registró o el admin**
+  (otro veterinario: 403); el autor no cambia aunque corrija el admin. Borrado
+  lógico, auditado con el contenido anterior y quién lo hizo. Recepción y
+  clientes no registran. En la web la marca es `puedeAtender`. Agendar/reprogramar
+  citas e inasistencia: admin y recepción. Carrito: solo cliente.
 - El **cliente nunca entra al diseño interno** (menú lateral): ninguna HU le pide
   un panel (HU-018 y HU-012 son del administrador). Al entrar va a la Tienda
   (`auth.inicio()`) y todo lo suyo vive en el diseño público, con la cabecera
@@ -281,7 +284,7 @@ Hecho con nuestro stack (.NET + Angular en vez de Node/Express + Vue/FullCalenda
 - Diferencias con el plan: el PDF sale desde "Imprimir"; arrastrar citas para
   reagendar (opcional) no se hizo, se usa "Reprogramar"; las vacunas pendientes
   salen de `/api/recordatorios` (HU-012) y el detalle de una atención es
-  `/api/historial/{id}`. Lo demás de Cesar y Mariano está hecho (CI: 262/262).
+  `/api/historial/{id}`. Lo demás de Cesar y Mariano está hecho (CI: 263/263).
 - Guion para la demo del Sprint Review (8 escenas, textos, capturas):
   https://claude.ai/artifact/J8Hhfwh9UP6Y7TwcP5xEgm (privado; compartirlo
   con Mariano desde el menú Compartir). Su HTML no está en el repo: para
