@@ -7,7 +7,7 @@ import { Component, inject, signal } from '@angular/core';import { FormsModule }
   <p>{{activa()?.especie}} · {{activa()?.raza||'Sin raza'}} · Nacimiento: {{fechaCorta(activa()?.fechaNacimiento)}}</p>
   <div class="enlaces-ficha"><a routerLink="/historial" [queryParams]="{mascota:activa()?.id}">Historial completo, búsqueda e impresión →</a><a routerLink="/vacunas" [queryParams]="{mascota:activa()?.id}">Vacunas y próximas dosis →</a></div>
 
-  <div class="seccion"><h3>Historial clínico</h3>@if(esVeterinario){<button class="rv-boton rv-boton--sm rv-boton--contorno" (click)="alternarAtencion()">{{panelAtencion()?'Cancelar':'+ Atención'}}</button>}</div>
+  <div class="seccion"><h3>Historial clínico</h3>@if(puedeAtender){<button class="rv-boton rv-boton--sm rv-boton--contorno" (click)="alternarAtencion()">{{panelAtencion()?'Cancelar':'+ Atención'}}</button>}</div>
   @if(panelAtencion()){<form class="formulario" (ngSubmit)="guardarAtencion()">
     <div class="rv-form-grid">
       <label class="rv-campo ancho">Motivo<input class="rv-input" name="aMotivo" [(ngModel)]="fAtencion.motivo" required maxlength="250"></label>
@@ -23,7 +23,7 @@ import { Component, inject, signal } from '@angular/core';import { FormsModule }
   </form>}
   @for(h of historial();track h.id){<div class="registro"><strong>{{h.motivo}}</strong><small>{{fechaUtc(h.fechaAtencion)}} · {{h.veterinarioNombre}}</small><p><em>Diagnóstico:</em> {{h.diagnostico}}<br><em>Tratamiento:</em> {{h.tratamiento}}@if(h.receta){<br><em>Receta:</em> {{h.receta}}}</p>@if(h.pesoKg){<small>Peso {{h.pesoKg}} kg</small>}@if(h.temperaturaC){<small>Temperatura {{h.temperaturaC}} °C</small>}@if(h.observaciones){<small>{{h.observaciones}}</small>}</div>}@empty{<p>Sin atenciones registradas.</p>}
 
-  <div class="seccion"><h3>Vacunas</h3>@if(esVeterinario){<button class="rv-boton rv-boton--sm rv-boton--contorno" (click)="alternarVacuna()">{{panelVacuna()?'Cancelar':'+ Vacuna'}}</button>}</div>
+  <div class="seccion"><h3>Vacunas</h3>@if(puedeAtender){<button class="rv-boton rv-boton--sm rv-boton--contorno" (click)="alternarVacuna()">{{panelVacuna()?'Cancelar':'+ Vacuna'}}</button>}</div>
   @if(panelVacuna()){<form class="formulario" (ngSubmit)="guardarVacuna()">
     <div class="rv-form-grid">
       <label class="rv-campo">Vacuna<input class="rv-input" name="vTipo" [(ngModel)]="fVacuna.tipoVacuna" required maxlength="100"></label>
@@ -49,7 +49,7 @@ export class MascotasComponent{
   puedeRegistrar=GRUPOS.ADMIN_O_RECEPCION.includes(this.auth.rol());
   // La API exige [Authorize(Roles = Veterinario)] para firmar datos clinicos:
   // ni el admin puede. Ocultar el boton evita un 403 que no se puede resolver.
-  esVeterinario=this.auth.rol()===ROLES.VETERINARIO;
+  puedeAtender=this.auth.rol()===ROLES.VETERINARIO||this.auth.rol()===ROLES.ADMIN;
   form:any={};fAtencion:any=this.atencionVacia();fVacuna:any=this.vacunaVacia();
   // Desde la ficha del cliente se llega con ?mascota=<id> para abrir su ficha clinica.
   constructor(){this.cargar();const id=Number(this.ruta.snapshot.queryParamMap.get('mascota'));if(id>0)this.abrirPorId(id);}

@@ -22,7 +22,7 @@ const diaLima = (iso?: string) => iso ? new Date(iso).toLocaleDateString('en-CA'
 //   aquí solo se ocultan los botones a los demás).
 @Component({selector:'app-historial',standalone:true,imports:[FormsModule],template:`
 <header class="rv-pagina-cabecera no-imprimir"><div><h1>Historial clínico</h1><p>Atenciones de cada paciente, de la más reciente a la más antigua.</p></div>
-  @if(mascota()){<div class="rv-acciones"><button class="rv-boton rv-boton--contorno" (click)="imprimir()" title="Imprimir o guardar como PDF">Imprimir</button>@if(esVeterinario){<button class="rv-boton rv-boton--primario" (click)="nuevaAtencion()">+ Nueva atención</button>}</div>}
+  @if(mascota()){<div class="rv-acciones"><button class="rv-boton rv-boton--contorno" (click)="imprimir()" title="Imprimir o guardar como PDF">Imprimir</button>@if(puedeAtender){<button class="rv-boton rv-boton--primario" (click)="nuevaAtencion()">+ Nueva atención</button>}</div>}
 </header>
 
 <section class="selector rv-panel no-imprimir">
@@ -75,7 +75,7 @@ const diaLima = (iso?: string) => iso ? new Date(iso).toLocaleDateString('en-CA'
     @if(h.editado){<dt>Corregida</dt><dd>{{fechaUtc(h.actualizadoEn)}}</dd>}
   </dl>
   @if(esAutor(h)){<div class="rv-acciones"><button type="button" class="rv-boton rv-boton--contorno" (click)="editar(h)">Corregir</button><button type="button" class="rv-boton" (click)="eliminar(h)" [disabled]="guardando()">Eliminar</button></div>}
-  @else if(esVeterinario){<p class="nota">Solo {{h.veterinarioNombre}} puede corregir o eliminar esta atención.</p>}
+  @else if(puedeAtender){<p class="nota">Solo {{h.veterinarioNombre}} o el administrador pueden corregir o eliminar esta atención.</p>}
 </div></div>}
 
 @if(formulario()){<div class="rv-modal-fondo no-imprimir" (click)="formulario.set(false)"><form class="rv-modal" (click)="$event.stopPropagation()" (ngSubmit)="guardar()">
@@ -112,7 +112,7 @@ styles:[`.selector{padding:1rem;margin-bottom:1rem}.buscar{display:flex;gap:.6re
 @media(max-width:600px){.paciente{flex-wrap:wrap}.conteo{margin-left:0}}`]})
 export class HistorialComponent{
   private api=inject(ApiService);readonly auth=inject(AuthService);private toast=inject(ToastService);private ruta=inject(ActivatedRoute);private router=inject(Router);
-  readonly esVeterinario=this.auth.rol()===ROLES.VETERINARIO;
+  readonly puedeAtender=this.auth.rol()===ROLES.VETERINARIO||this.auth.rol()===ROLES.ADMIN;
   readonly fechaUtc=fechaUtc;readonly fechaHoraLima=fechaHoraLima;readonly edad=edadTexto;
   opciones=signal<any[]>([]);buscando=signal(false);textoMascota='';
   mascota=signal<any>(null);historial=signal<any[]>([]);citasProgramadas=signal<any[]>([]);
@@ -127,10 +127,10 @@ export class HistorialComponent{
   constructor(){
     this.cargarOpciones();
     const q=this.ruta.snapshot.queryParamMap;const id=Number(q.get('mascota'));const cita=Number(q.get('cita'));
-    if(id>0)this.elegir(id).then(()=>{if(cita>0&&this.esVeterinario)this.nuevaAtencion(cita);});
+    if(id>0)this.elegir(id).then(()=>{if(cita>0&&this.puedeAtender)this.nuevaAtencion(cita);});
   }
   capitalizar(t?:string){return t?t.charAt(0).toUpperCase()+t.slice(1):'';}
-  esAutor(h:any){return this.esVeterinario&&this.auth.usuario()?.id===h.veterinarioId;}
+  esAutor(h:any){return this.puedeAtender&&(this.auth.esAdmin()||this.auth.usuario()?.id===h.veterinarioId);}
   limpiarFiltros(){this.palabra='';this.desde='';this.hasta='';}
 
   async cargarOpciones(){try{const r=await firstValueFrom(this.api.get('/mascotas',{pagina:1,limite:12}));this.opciones.set(r.items??r);}catch{/* el buscador sigue disponible */}}

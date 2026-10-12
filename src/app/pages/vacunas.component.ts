@@ -22,7 +22,7 @@ function diasHasta(fecha?: string | null): number | null {
 // - Tabla por mascota, registro con sugerencias según la especie, y corrección
 //   o eliminación solo para el veterinario que la registró.
 @Component({selector:'app-vacunas',standalone:true,imports:[FormsModule],template:`
-<header class="rv-pagina-cabecera"><div><h1>Vacunas</h1><p>Dosis aplicadas, próximas fechas y alertas.</p></div>@if(esVeterinario&&mascota()){<button class="rv-boton rv-boton--primario" (click)="nueva()">+ Registrar vacuna</button>}</header>
+<header class="rv-pagina-cabecera"><div><h1>Vacunas</h1><p>Dosis aplicadas, próximas fechas y alertas.</p></div>@if(puedeAtender&&mascota()){<button class="rv-boton rv-boton--primario" (click)="nueva()">+ Registrar vacuna</button>}</header>
 
 <section class="alertas rv-panel">
   <header><h2>Próximas dosis <small>(30 días)</small></h2>@if(urgentes()){<span class="urgente">{{urgentes()}} urgente{{urgentes()===1?'':'s'}}</span>}</header>
@@ -77,7 +77,7 @@ small{color:var(--rv-texto-suave)}.texto-urgente{color:#a62b2b;font-weight:700}
 .rv-modal textarea{font:inherit;resize:vertical}.rv-modal__cabecera button{border:0;background:none;font-size:1.5rem;cursor:pointer}`]})
 export class VacunasComponent{
   private api=inject(ApiService);readonly auth=inject(AuthService);private toast=inject(ToastService);private ruta=inject(ActivatedRoute);private router=inject(Router);
-  readonly esVeterinario=this.auth.rol()===ROLES.VETERINARIO;readonly esPersonal=this.auth.esPersonal();
+  readonly puedeAtender=this.auth.rol()===ROLES.VETERINARIO||this.auth.rol()===ROLES.ADMIN;readonly esPersonal=this.auth.esPersonal();
   readonly fechaCorta=fechaCorta;readonly hoy=hoyLima();readonly dias=diasHasta;
   alertas=signal<any[]>([]);cargandoAlertas=signal(false);urgentes=signal(0);
   opciones=signal<any[]>([]);textoMascota='';
@@ -88,7 +88,7 @@ export class VacunasComponent{
     this.cargarAlertas();this.cargarOpciones();
     const id=Number(this.ruta.snapshot.queryParamMap.get('mascota'));if(id>0)this.elegir(id);
   }
-  esAutor(v:any){return this.esVeterinario&&this.auth.usuario()?.id===v.veterinarioId;}
+  esAutor(v:any){return this.puedeAtender&&(this.auth.esAdmin()||this.auth.usuario()?.id===v.veterinarioId);}
   sugerencias(){const e=this.mascota()?.especie;return VACUNAS_COMUNES[e]??VACUNAS_COMUNES['otro'];}
   estadoDosis(fecha:string){const d=diasHasta(fecha)!;return d<0?`Vencida hace ${-d} día${d===-1?'':'s'}`:d===0?'Vence hoy':`En ${d} día${d===1?'':'s'}`;}
 

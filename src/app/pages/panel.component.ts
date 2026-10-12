@@ -46,7 +46,7 @@ const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
         <div class="rv-tabla-wrap"><table class="rv-tabla hoy"><thead><tr><th>Hora</th><th>Mascota</th><th>Cliente</th><th>Veterinario</th><th>Estado</th><th></th></tr></thead><tbody>
           @for(c of citasHoy();track c.id){<tr><td><strong>{{hora(c.fechaHoraLima)}}</strong></td><td>{{c.mascotaNombre}}</td><td>{{c.clienteNombre}}</td><td>{{c.veterinarioNombre}}</td><td><span class="estado-chip estado--{{c.estado}}">{{nombreEstado[c.estado]||c.estado}}</span></td>
             <td>@if(c.estado==='programada'){<div class="acciones">
-              @if(esVeterinario){<button class="rv-boton rv-boton--sm rv-boton--primario" (click)="atender(c)" title="Registrar la atención; la cita quedará atendida">Atender</button>}
+              @if(puedeAtender){<button class="rv-boton rv-boton--sm rv-boton--primario" (click)="atender(c)" title="Registrar la atención; la cita quedará atendida">Atender</button>}
               @if(puedeGestionar&&yaPaso(c)){<button class="rv-boton rv-boton--sm rv-boton--contorno" (click)="noAsistio(c)" title="La mascota no vino">No asistió</button>}
             </div>}</td></tr>}
           @empty{<tr><td colspan="6" class="rv-vacio">No hay citas para hoy.</td></tr>}
@@ -101,7 +101,7 @@ const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 })
 export class PanelComponent {
   readonly auth=inject(AuthService); private readonly api=inject(ApiService); private readonly router=inject(Router); private readonly toast=inject(ToastService);
-  readonly esPersonal=this.auth.esPersonal(); readonly esVeterinario=this.auth.rol()===ROLES.VETERINARIO; readonly puedeGestionar=this.auth.puede(GRUPOS.ADMIN_O_RECEPCION);
+  readonly esPersonal=this.auth.esPersonal(); readonly puedeAtender=this.auth.rol()===ROLES.VETERINARIO||this.auth.rol()===ROLES.ADMIN; readonly puedeGestionar=this.auth.puede(GRUPOS.ADMIN_O_RECEPCION);
   readonly stats=signal<any>(null); readonly citasHoy=signal<any[]>([]); readonly citasSemana=signal<any[]>([]);
   readonly ind=signal<any>(null); readonly pendientes=signal(0); readonly citas=signal<any[]>([]);
   readonly recordatorios=signal<any>(null); readonly dias=signal(7);
