@@ -99,7 +99,7 @@ const esDomingo = (s: string) => aFecha(s).getDay() === 0;
       @if(c.motivoCancelacion){<dt>Cancelación</dt><dd>{{c.motivoCancelacion}}</dd>}
     </dl>
     @if(c.estado==='programada'){<div class="rv-acciones">
-      @if(esVeterinario){<button type="button" class="rv-boton rv-boton--primario" (click)="atender(c)" title="Registrar la atención en el historial; la cita quedará atendida">Atender</button>}
+      @if(puedeAtender){<button type="button" class="rv-boton rv-boton--primario" (click)="atender(c)" title="Registrar la atención en el historial; la cita quedará atendida">Atender</button>}
       @if(puedeGestionar&&yaPaso(c)){<button type="button" class="rv-boton rv-boton--contorno" (click)="marcarNoAsistio(c)" [disabled]="guardandoDetalle()" title="La mascota no vino a la cita">No asistió</button>}
       @if(puedeGestionar){<button type="button" class="rv-boton rv-boton--contorno" (click)="iniciarReprogramar()">Reprogramar</button>}
       @if(puedeCancelar&&!yaPaso(c)){<button type="button" class="rv-boton" (click)="iniciarCancelacion()">Cancelar cita</button>}
@@ -194,7 +194,7 @@ export class CitasComponent{
   // recepcion; cancelar, ademas el cliente; atender, el veterinario.
   readonly puedeGestionar=this.auth.puede(GRUPOS.ADMIN_O_RECEPCION);
   readonly puedeCancelar=this.auth.puede([...GRUPOS.ADMIN_O_RECEPCION,ROLES.CLIENTE]);
-  readonly esVeterinario=this.auth.rol()===ROLES.VETERINARIO;
+  readonly puedeAtender=this.auth.rol()===ROLES.VETERINARIO||this.auth.rol()===ROLES.ADMIN;
 
   citas=signal<any[]>([]);veterinarios=signal<any[]>([]);mascotas=signal<any[]>([]);mascotasFiltro=signal<any[]>([]);horarios=signal<string[]>([]);
   error=signal('');cargando=signal(false);
