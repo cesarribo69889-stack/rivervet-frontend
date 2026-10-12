@@ -79,7 +79,19 @@ Datos que hay en producción:
   teléfonos `9000001xx`, DNI `100001xx`) con 6 mascotas (Toby, Mía, Rocky,
   Nala, Coco, Max), citas, atenciones y vacunas. Borrarlos si la clínica va a
   usar el sistema con clientes reales.
-- Las cuentas de prueba (abajo). No hay pedidos: el de prueba de Yape se borró.
+- Las cuentas de prueba (abajo). El pedido de prueba de Yape (RV-000003) se
+  borró, pero al 2026-10-11 hay 4 pedidos nuevos del cliente de prueba
+  (RV-000004 a RV-000007, S/ 4.50 cada uno, `pendiente_pago`) de las pruebas del
+  usuario: cada uno descontó 1 unidad de stock. Si son pruebas, cancelarlos
+  (Mis pedidos → Cancelar, o Pedidos en el panel) devuelve el stock.
+
+**Copias de la base:** Azure guarda respaldos automáticos de 7 días (restaurar a
+cualquier momento). Para una copia en archivo, el usuario corre
+`backend\herramientas\exportar-base.ps1` (solo lee; pide la clave de
+`rivervet_migrador`; firewall abierto a su IP): deja en Descargas un `.sql` con
+estructura + datos que se restaura en una base vacía con SSMS o `sqlcmd -I -f 65001`.
+Hay LocalDB y SQL Express en la PC original para probar la restauración. La del
+2026-10-11 (362 filas) se restauró en LocalDB idéntica a producción.
 
 ### Azure: regiones
 
