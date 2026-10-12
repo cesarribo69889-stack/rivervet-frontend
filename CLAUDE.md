@@ -172,6 +172,12 @@ Registrada y verificada en Google Search Console; indexada desde el 2026-10-09.
   regenera con `node herramientas/generar-coleccion-postman.mjs`. Documentación
   de la API: `backend/docs/API.md`.
 - Configuración y secretos del backend: variables del App Service, nunca en el repo.
+  Límite general de la API: `Seguridad__GlobalMax = 600` peticiones cada 15 min
+  por IP (desde el 2026-10-11; el valor por defecto, 100, bloqueaba con "Demasiadas
+  solicitudes" a quien navegaba un rato: el panel solo hace 8 llamadas). El
+  login tiene su propia protección aparte (5 intentos por IP+correo y bloqueo de
+  la cuenta tras 5 contraseñas malas). `Seguridad__ProxiesConfiables = 2`
+  (Vercel + Azure) hace que el límite cuente la IP real del usuario.
   **Yape se edita desde el panel**: "Métodos de pago" (`/metodos-pago`, solo
   admin) cambia número, titular y QR, que se guardan en `dbo.configuracion_yape`
   (el QR también: `GET /api/pagos/yape/qr?v=…`, público y cacheable). Las
