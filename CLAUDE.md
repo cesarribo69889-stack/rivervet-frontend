@@ -6,13 +6,24 @@ pedidos y pagos. Español en código, comentarios, commits y respuestas.
 Este archivo es la **única fuente de contexto**: la memoria de Claude no pasa de
 una computadora a otra, así que todo lo que haga falta para seguir va aquí.
 
-## Dónde quedamos (2026-10-08)
+## Dónde quedamos (2026-10-11)
 
 - Todo el Sprint 2 y las HU 001–018, 020 y 021 están hechas y en producción.
   Solo falta la pasarela real (HU-019), que depende de contratar un proveedor.
-- Último trabajo: "Métodos de pago" (Yape editable desde el panel, migración
-  0006), botón para eliminar productos en Inventario, el cliente usa solo el
-  diseño de la tienda, y la web quedó preparada y verificada en Google Search Console.
+- Revisión de producción del 2026-10-11 (solo lectura, 34 comprobaciones con las
+  tres cuentas: web, catálogo, panel, agenda, clientes, mascotas, historial,
+  vacunas, inventario, pedidos, pagos, Métodos de pago, usuarios, auditoría):
+  todo bien. CI del backend: 263/263.
+- Trabajo del 2026-10-08 al 11:
+  - "Métodos de pago": Yape editable desde el panel (migración 0006).
+  - Eliminar productos en Inventario.
+  - El cliente usa solo el diseño de la tienda.
+  - Google: la web está indexada.
+  - El **admin también registra, corrige y elimina atenciones y vacunas**
+    (HU-006 y HU-011 dicen "Como administrador").
+  - Límite de la API subido a 600 peticiones cada 15 min (antes bloqueaba con
+    "Demasiadas solicitudes").
+  - Script para **copiar la base** a un `.sql` (`exportar-base.ps1`).
 - Repos al día en GitHub: backend `main` = `develop`; frontend `main`.
 - Lo que sigue depende del usuario: ver **Pendientes** al final.
 
@@ -179,7 +190,7 @@ Registrada y verificada en Google Search Console; indexada desde el 2026-10-09.
   bloquea cargar `RiverVet.Api.dll`; no desactivarlo: no se puede volver a
   encender). En otra PC pueden correr con `dotnet test RiverVet.slnx` si hay SQL
   Server local. La referencia es el CI de GitHub (formato, build, pruebas,
-  migraciones, gitleaks, CodeQL; 259/259 en verde). El push NO dispara el CI:
+  migraciones, gitleaks, CodeQL; 263/263 en verde). El push NO dispara el CI:
   `gh workflow run backend-ci.yml --repo cesarribo69889-stack/rivervet --ref develop`.
   Antes de subir: `dotnet format RiverVet.slnx --verify-no-changes --severity warn`
   (el CI falla por el orden de los `using`).
@@ -263,9 +274,11 @@ Revisado contra el tablero y las tareas del Sprint 2 el 2026-10-08.
   para cobrar tarjetas (solo transferencias); el usuario descartó por ahora
   agregar "Transferencia bancaria".
 
-Extras que no pide ninguna HU, hechos a pedido del usuario el 2026-10-08:
+Extras que no pide ninguna HU, hechos a pedido del usuario (2026-10-08 al 11):
 "Métodos de pago" (Yape editable desde el panel), eliminar productos en el
-Inventario, el cliente sin panel (todo en el diseño de la tienda) y lo de Google.
+Inventario, el cliente sin panel (todo en el diseño de la tienda), lo de Google
+y la copia de la base. Que el admin registre atenciones y vacunas no es un
+extra: lo piden HU-006 y HU-011 ("Como administrador").
 
 ### Sprint 2 (tareas de Cesar y Mariano, 2026-10-06)
 
@@ -317,8 +330,13 @@ No falta programación de ninguna HU salvo la pasarela real (HU-019).
    indexing" salvo que la página cambie. Para subir en los resultados: que la
    clínica cree su Perfil de Empresa en Google (Maps) con la dirección real y
    ponga el enlace en sus redes.
-4. Revisar la web en el navegador con las tres cuentas: se probó por la API y
-   compilando, pero no recorriéndola en pantalla.
+4. Revisar la web en el navegador con las tres cuentas: se probó por la API
+   (revisión de producción del 2026-10-11, todo bien) y compilando, pero Claude
+   no la recorrió en pantalla.
+4b. Cancelar los 4 pedidos de prueba sin pagar (RV-000004 a RV-000007) si eran
+   pruebas, para que el stock vuelva (Pedidos en el panel → Cancelar).
+4c. La copia de la base del 2026-10-11 está en `Descargas\rivervet_db_2026-10-11_2040.sql`:
+   tiene datos personales y hashes de contraseñas; guardarla en privado, no en GitHub.
 5. Los repos son privados. Si se hacen públicos, el número de WhatsApp queda en
    el historial de git.
 
