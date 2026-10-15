@@ -10,6 +10,7 @@ import { ToastService } from '../core/toast.service';
 
 type Vista = 'mes' | 'semana' | 'dia' | 'lista';
 type ModoDetalle = 'ver' | 'reprogramar' | 'cancelar';
+type Horario = { hora: string; libre: boolean };
 
 const ESTADOS: Record<string, string> = { programada: 'Programada', atendida: 'Atendida', cancelada: 'Cancelada', no_asistio: 'No asistió' };
 const DIAS_SEMANA = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
@@ -59,7 +60,7 @@ const esDomingo = (s: string) => aFecha(s).getDay() === 0;
   @for(n of diasSemana;track n){<div class="nombre-dia">{{n}}</div>}
   @for(d of dias();track d){<div class="celda" [class.fuera]="!delMes(d)" [class.hoy]="d===hoy" [class.cerrado]="cerrado(d)" [class.agendable]="agendable(d)" (click)="clicDia(d)" [title]="agendable(d)?'Agendar el '+numeroDia(d):''">
     <button type="button" class="numero" (click)="$event.stopPropagation();verDia(d)" title="Ver el día">{{aFecha(d).getDate()}}</button>
-    @for(c of (porDia()[d]??[]).slice(0,3);track c.id){<button type="button" class="mini estado--{{c.estado}}" (click)="$event.stopPropagation();verDetalle(c)">{{horaDe(c)}} {{c.mascotaNombre}}</button>}
+    @for(c of (porDia()[d]??[]).slice(0,3);track c.id){<button type="button" class="mini estado--{{c.estado}}" [class.resaltada]="c.id===resaltada()" (click)="$event.stopPropagation();verDetalle(c)">{{horaDe(c)}} {{c.mascotaNombre}}</button>}
     @if((porDia()[d]??[]).length>3){<button type="button" class="mas" (click)="$event.stopPropagation();verDia(d)">+{{(porDia()[d]??[]).length-3}} más</button>}
   </div>}
 </div>}
@@ -68,19 +69,19 @@ const esDomingo = (s: string) => aFecha(s).getDay() === 0;
 @if(vista()==='semana'){<div class="semana rv-panel">
   @for(d of dias();track d){<section class="dia" [class.hoy]="d===hoy" [class.agendable]="agendable(d)" (click)="clicDia(d)" [title]="agendable(d)?'Clic en un espacio libre para agendar':''">
     <button type="button" class="cabecera-dia" (click)="$event.stopPropagation();verDia(d)" title="Ver el día completo"><span>{{nombreDia(d)}}</span><strong>{{numeroDia(d)}}</strong></button>
-    @for(c of porDia()[d]??[];track c.id){<button type="button" class="cita estado--{{c.estado}}" (click)="$event.stopPropagation();verDetalle(c)"><span class="hora">{{horaDe(c)}}</span><span class="titulo">{{c.mascotaNombre}}</span><small>{{c.veterinarioNombre}}</small></button>}
+    @for(c of porDia()[d]??[];track c.id){<button type="button" class="cita estado--{{c.estado}}" [class.resaltada]="c.id===resaltada()" (click)="$event.stopPropagation();verDetalle(c)"><span class="hora">{{horaDe(c)}}</span><span class="titulo">{{c.mascotaNombre}}</span><small>{{c.veterinarioNombre}}</small></button>}
     @empty{<p class="libre">{{agendable(d)?'Libre · clic para agendar':'Sin citas'}}</p>}
   </section>}
 </div>}
 
 @if(vista()==='dia'){@if(esDomingo(ancla())){<p class="rv-vacio rv-panel">Los domingos no hay atención.</p>}@else{<div class="dia-agenda rv-panel">
   @for(b of bloques;track b){<div class="bloque" [class.agendable]="bloqueAgendable(b)" (click)="clicBloque(b)" [title]="bloqueAgendable(b)?'Agendar a las '+b:''"><span class="hora">{{b}}</span><div class="contenido">
-    @for(c of porBloque()[b]??[];track c.id){<button type="button" class="cita estado--{{c.estado}}" (click)="$event.stopPropagation();verDetalle(c)"><span class="titulo">{{c.mascotaNombre}} · {{c.motivo}}</span><small>{{c.veterinarioNombre}} · {{c.clienteNombre}}</small></button>}
+    @for(c of porBloque()[b]??[];track c.id){<button type="button" class="cita estado--{{c.estado}}" [class.resaltada]="c.id===resaltada()" (click)="$event.stopPropagation();verDetalle(c)"><span class="titulo">{{c.mascotaNombre}} · {{c.motivo}}</span><small>{{c.veterinarioNombre}} · {{c.clienteNombre}}</small></button>}
   </div></div>}
 </div>}}
 
 @if(vista()==='lista'){<div class="rv-tabla-wrap rv-panel"><table class="rv-tabla"><thead><tr><th>Fecha</th><th>Mascota</th><th>Veterinario</th><th>Motivo</th><th>Estado</th><th></th></tr></thead><tbody>
-  @for(c of listaOrdenada();track c.id){<tr><td>{{fechaHoraLima(c.fechaHoraLima)}}</td><td><strong>{{c.mascotaNombre}}</strong><br><small>{{c.clienteNombre}}</small></td><td>{{c.veterinarioNombre}}</td><td>{{c.motivo}}</td><td><span class="cita-chip estado--{{c.estado}}">{{nombreEstado[c.estado]||c.estado}}</span></td><td><button class="rv-boton rv-boton--sm rv-boton--contorno" (click)="verDetalle(c)">Ver</button></td></tr>}
+  @for(c of listaOrdenada();track c.id){<tr [class.resaltada]="c.id===resaltada()"><td>{{fechaHoraLima(c.fechaHoraLima)}}</td><td><strong>{{c.mascotaNombre}}</strong><br><small>{{c.clienteNombre}}</small></td><td>{{c.veterinarioNombre}}</td><td>{{c.motivo}}</td><td><span class="cita-chip estado--{{c.estado}}">{{nombreEstado[c.estado]||c.estado}}</span></td><td><button class="rv-boton rv-boton--sm rv-boton--contorno" (click)="verDetalle(c)">Ver</button></td></tr>}
   @empty{<tr><td colspan="6" class="rv-vacio">No hay citas en este periodo.</td></tr>}
 </tbody></table></div>}
 
@@ -111,7 +112,7 @@ const esDomingo = (s: string) => aFecha(s).getDay() === 0;
     <div class="rv-form-grid">
       <label>Veterinario<select class="rv-select" name="rVet" [(ngModel)]="edicion.veterinarioId" (change)="cargarHorariosEdicion()" required>@for(v of veterinarios();track v.id){<option [value]="v.id">{{v.nombre}}</option>}</select></label>
       <label>Fecha<input class="rv-input" type="date" name="rFecha" [(ngModel)]="edicion.fecha" [min]="hoy" (change)="cargarHorariosEdicion()" required></label>
-      <label>Hora<select class="rv-select" name="rHora" [(ngModel)]="edicion.hora" required><option value="">Selecciona</option>@for(h of horariosEdicion();track h){<option [value]="h">{{h}}</option>}</select></label>
+      <label>Hora<select class="rv-select" name="rHora" [(ngModel)]="edicion.hora" required><option value="">Selecciona</option>@for(h of horariosEdicion();track h.hora){<option [value]="h.hora" [disabled]="!h.libre">{{h.hora}}{{h.libre?'':' · ocupado'}}</option>}</select>@if(hayOcupadas(horariosEdicion())){<small class="ocupadas">Las horas ocupadas por ese veterinario aparecen bloqueadas.</small>}</label>
       <label>Motivo<input class="rv-input" name="rMotivo" [(ngModel)]="edicion.motivo" required maxlength="250"></label>
     </div>
     @if(avisoHorarioEdicion()){<p class="rv-aviso rv-aviso--aviso">{{avisoHorarioEdicion()}}</p>}
@@ -135,14 +136,14 @@ const esDomingo = (s: string) => aFecha(s).getDay() === 0;
     <label class="ancho">Mascota<select class="rv-select" name="mascota" [(ngModel)]="nueva.mascotaId" required><option value="">Selecciona</option>@for(m of mascotas();track m.id){<option [value]="m.id">{{m.nombre}} — {{m.clienteNombre}}</option>}</select></label>
     <label>Veterinario<select class="rv-select" name="veterinario" [(ngModel)]="nueva.veterinarioId" (change)="disponibilidad()" required><option value="">Selecciona</option>@for(v of veterinarios();track v.id){<option [value]="v.id">{{v.nombre}}</option>}</select></label>
     <label>Fecha<input class="rv-input" type="date" name="fecha" [(ngModel)]="nueva.fecha" [min]="hoy" (change)="disponibilidad()" required></label>
-    <label>Hora<select class="rv-select" name="hora" [(ngModel)]="nueva.hora" required><option value="">{{nueva.veterinarioId?'Selecciona':'Primero elige el veterinario'}}</option>@for(h of horarios();track h){<option [value]="h">{{h}}</option>}</select></label>
+    <label>Hora<select class="rv-select" name="hora" [(ngModel)]="nueva.hora" required><option value="">{{nueva.veterinarioId?'Selecciona':'Primero elige el veterinario'}}</option>@for(h of horarios();track h.hora){<option [value]="h.hora" [disabled]="!h.libre">{{h.hora}}{{h.libre?'':' · ocupado'}}</option>}</select>@if(hayOcupadas(horarios())){<small class="ocupadas">Las horas ocupadas por ese veterinario aparecen bloqueadas.</small>}</label>
     <label>Motivo<input class="rv-input" name="motivo" [(ngModel)]="nueva.motivo" required maxlength="250"></label>
   </div>
   @if(avisoHorario()){<p class="rv-aviso rv-aviso--aviso">{{avisoHorario()}}</p>}
   @if(errorForm()){<p class="rv-aviso rv-aviso--error">{{errorForm()}}</p>}
   <button class="rv-boton rv-boton--primario" [disabled]="guardandoNueva()">{{guardandoNueva()?'Agendando…':'Agendar'}}</button>
 </form></div>}`,
-styles:[`small{color:var(--rv-texto-suave)}
+styles:[`.ocupadas{display:block;margin-top:.3rem;color:var(--rv-texto-tenue);font-size:.75rem}.resaltada{animation:resaltar 4s ease-out}tr.resaltada td{animation:resaltar-fila 4s ease-out}@keyframes resaltar{0%,65%{box-shadow:0 0 0 3px var(--rv-teal)}100%{box-shadow:0 0 0 0 transparent}}@keyframes resaltar-fila{0%,65%{background:var(--rv-teal-50)}100%{background:transparent}}@media(prefers-reduced-motion:reduce){.resaltada,tr.resaltada td{animation:none;outline:2px solid var(--rv-teal)}}small{color:var(--rv-texto-suave)}
 .barra{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem}
 .vistas{display:inline-flex;padding:.25rem;border:1px solid var(--rv-borde);border-radius:12px;background:white}
 .vistas button{padding:.45rem .9rem;border:0;border-radius:9px;background:none;color:var(--rv-texto-suave);font-weight:700;cursor:pointer}
@@ -196,7 +197,7 @@ export class CitasComponent{
   readonly puedeCancelar=this.auth.puede([...GRUPOS.ADMIN_O_RECEPCION,ROLES.CLIENTE]);
   readonly puedeAtender=this.auth.rol()===ROLES.VETERINARIO||this.auth.rol()===ROLES.ADMIN;
 
-  citas=signal<any[]>([]);veterinarios=signal<any[]>([]);mascotas=signal<any[]>([]);mascotasFiltro=signal<any[]>([]);horarios=signal<string[]>([]);
+  citas=signal<any[]>([]);veterinarios=signal<any[]>([]);mascotas=signal<any[]>([]);mascotasFiltro=signal<any[]>([]);horarios=signal<Horario[]>([]);
   error=signal('');cargando=signal(false);
   vista=signal<Vista>('semana');ancla=signal(hoyLima());
   filtroEstado='';filtroVet='';filtroMascota='';desde=hoyLima();hasta=diaLima(14);
@@ -205,7 +206,10 @@ export class CitasComponent{
   nueva:any=this.citaVacia();busquedaMascota='';private horaPreferida='';
 
   detalle=signal<any>(null);modoDetalle=signal<ModoDetalle>('ver');
-  edicion:any={};horariosEdicion=signal<string[]>([]);avisoHorarioEdicion=signal('');
+  edicion:any={};horariosEdicion=signal<Horario[]>([]);avisoHorarioEdicion=signal('');
+  // HU-009: la cita recién agendada o cambiada se resalta unos segundos en el
+  // calendario, para que se note que el cambio ya está reflejado.
+  resaltada=signal<number|null>(null);private temporizadorResaltado?:ReturnType<typeof setTimeout>;
   motivoCancelacion='';errorDetalle=signal('');guardandoDetalle=signal(false);
 
   readonly dias=computed(()=>{
@@ -257,32 +261,35 @@ export class CitasComponent{
   clicDia(d:string){if(this.agendable(d))this.abrirAgendar(d);}
   clicBloque(b:string){if(this.bloqueAgendable(b))this.abrirAgendar(this.ancla(),b);}
 
-  // La API devuelve TODOS los bloques del dia como {hora, fechaHoraLima, libre}.
-  // Solo se ofrecen los libres; 'incluir' agrega el bloque que ocupa la propia
-  // cita al reprogramarla, que figura ocupado justamente por ella.
-  private async horasLibres(veterinarioId:any,fecha:string,incluir?:string):Promise<{horas:string[];aviso:string}>{
+  // HU-008: la API devuelve TODOS los bloques del dia como {hora, fechaHoraLima, libre}.
+  // Se muestran todos y los ocupados quedan bloqueados ("· ocupado"), para que
+  // se vea que la disponibilidad se valida. 'incluir' libera el bloque de la
+  // propia cita al reprogramarla, que figura ocupado justamente por ella.
+  private async horasDelDia(veterinarioId:any,fecha:string,incluir?:string):Promise<{horas:Horario[];aviso:string}>{
     if(!veterinarioId||!fecha)return{horas:[],aviso:''};
     try{
       const r=await firstValueFrom(this.api.get('/citas/disponibilidad',{veterinarioId,fecha}));
       if(!r.atiende)return{horas:[],aviso:'Ese día no hay atención (domingo).'};
-      const horas=(r.horarios as any[]).filter(h=>h.libre||h.hora===incluir).map(h=>h.hora as string);
-      return{horas,aviso:horas.length?'':'No quedan horarios libres ese día para este veterinario.'};
+      const horas:Horario[]=(r.horarios as any[]).map(h=>({hora:h.hora as string,libre:!!h.libre||h.hora===incluir}));
+      return{horas,aviso:horas.some(h=>h.libre)?'':'No quedan horarios libres ese día para este veterinario.'};
     }catch(e){return{horas:[],aviso:mensajeDeError(e)};}
   }
+  hayOcupadas(horas:Horario[]){return horas.some(h=>!h.libre);}
+  private resaltar(id:number|undefined){if(!id)return;clearTimeout(this.temporizadorResaltado);this.resaltada.set(id);this.temporizadorResaltado=setTimeout(()=>this.resaltada.set(null),4000);}
 
   citaVacia(){return{mascotaId:'',veterinarioId:'',fecha:hoyLima(),hora:'',motivo:''};}
   // Desde un clic en el calendario llega la fecha (y la hora en la vista dia);
   // la hora se fija cuando se elige el veterinario y se sabe si esta libre.
   abrirAgendar(fecha?:string,hora?:string){this.nueva={...this.citaVacia(),fecha:fecha??hoyLima()};this.horaPreferida=hora??'';this.mascotas.set(this.mascotasFiltro());this.horarios.set([]);this.avisoHorario.set('');this.errorForm.set('');this.modal.set(true);}
   async buscarMascotas(){if(this.busquedaMascota.trim().length<2)return;try{const r=await firstValueFrom(this.api.post('/mascotas/buscar',{texto:this.busquedaMascota.trim(),pagina:1,limite:10}));this.mascotas.set(r.items??r);}catch(e){this.toast.error(mensajeDeError(e));}}
-  async disponibilidad(){this.nueva.hora='';const r=await this.horasLibres(this.nueva.veterinarioId,this.nueva.fecha);this.horarios.set(r.horas);this.avisoHorario.set(r.aviso);
-    if(this.horaPreferida&&r.horas.includes(this.horaPreferida))this.nueva.hora=this.horaPreferida;
+  async disponibilidad(){this.nueva.hora='';const r=await this.horasDelDia(this.nueva.veterinarioId,this.nueva.fecha);this.horarios.set(r.horas);this.avisoHorario.set(r.aviso);
+    if(this.horaPreferida&&r.horas.some(h=>h.hora===this.horaPreferida&&h.libre))this.nueva.hora=this.horaPreferida;
     else if(this.horaPreferida&&this.nueva.veterinarioId)this.avisoHorario.set(`A las ${this.horaPreferida} ese veterinario no está libre: elige otra hora.`);}
   async agendar(){this.guardandoNueva.set(true);this.errorForm.set('');try{
-    await firstValueFrom(this.api.post('/citas',{mascotaId:Number(this.nueva.mascotaId),veterinarioId:Number(this.nueva.veterinarioId),fechaHora:`${this.nueva.fecha}T${this.nueva.hora}`,motivo:this.nueva.motivo}));
+    const cita=await firstValueFrom(this.api.post('/citas',{mascotaId:Number(this.nueva.mascotaId),veterinarioId:Number(this.nueva.veterinarioId),fechaHora:`${this.nueva.fecha}T${this.nueva.hora}`,motivo:this.nueva.motivo}));
     this.toast.exito('Cita agendada.');this.modal.set(false);
     // Se salta a la fecha agendada para que la cita se vea en el calendario.
-    if(this.vista()!=='lista')this.ancla.set(this.nueva.fecha);await this.cargar();
+    if(this.vista()!=='lista')this.ancla.set(this.nueva.fecha);await this.cargar();this.resaltar(cita?.id);
   }catch(e){this.errorForm.set(mensajeDeError(e));}finally{this.guardandoNueva.set(false);}}
 
   verDetalle(c:any){this.detalle.set(c);this.modoDetalle.set('ver');this.errorDetalle.set('');}
@@ -290,22 +297,22 @@ export class CitasComponent{
   // "Atender" lleva al historial con la cita elegida: al guardar la atencion la API marca la cita como atendida.
   atender(c:any){this.detalle.set(null);this.router.navigate(['/historial'],{queryParams:{mascota:c.mascotaId,cita:c.id}});}
   async marcarNoAsistio(c:any){if(!confirm(`¿Registrar que ${c.mascotaNombre} no asistió a su cita?`))return;this.guardandoDetalle.set(true);this.errorDetalle.set('');try{
-    await firstValueFrom(this.api.post(`/citas/${c.id}/no-asistio`));this.toast.exito('Inasistencia registrada.');this.detalle.set(null);await this.cargar();
+    await firstValueFrom(this.api.post(`/citas/${c.id}/no-asistio`));this.toast.exito('Inasistencia registrada.');this.detalle.set(null);await this.cargar();this.resaltar(c.id);
   }catch(e){this.errorDetalle.set(mensajeDeError(e,'No se pudo registrar la inasistencia.'));}finally{this.guardandoDetalle.set(false);}}
   async iniciarReprogramar(){const c=this.detalle();this.edicion={veterinarioId:String(c.veterinarioId),fecha:this.diaDe(c),hora:this.horaDe(c),motivo:c.motivo};this.errorDetalle.set('');this.modoDetalle.set('reprogramar');await this.cargarHorariosEdicion(true);}
   async cargarHorariosEdicion(conservarHora=false){const c=this.detalle();if(!c)return;
     const mismoBloque=String(c.veterinarioId)===String(this.edicion.veterinarioId)&&this.diaDe(c)===this.edicion.fecha;
     if(!conservarHora)this.edicion.hora='';
-    const r=await this.horasLibres(this.edicion.veterinarioId,this.edicion.fecha,mismoBloque?this.horaDe(c):undefined);
+    const r=await this.horasDelDia(this.edicion.veterinarioId,this.edicion.fecha,mismoBloque?this.horaDe(c):undefined);
     this.horariosEdicion.set(r.horas);this.avisoHorarioEdicion.set(r.aviso);}
   async guardarReprogramacion(){const c=this.detalle();this.guardandoDetalle.set(true);this.errorDetalle.set('');try{
     await firstValueFrom(this.api.put(`/citas/${c.id}`,{veterinarioId:Number(this.edicion.veterinarioId),fechaHora:`${this.edicion.fecha}T${this.edicion.hora}`,motivo:this.edicion.motivo}));
     this.toast.exito('Cita reprogramada.');this.detalle.set(null);
-    if(this.vista()!=='lista')this.ancla.set(this.edicion.fecha);await this.cargar();
+    if(this.vista()!=='lista')this.ancla.set(this.edicion.fecha);await this.cargar();this.resaltar(c.id);
   }catch(e){this.errorDetalle.set(mensajeDeError(e,'No se pudo reprogramar.'));}finally{this.guardandoDetalle.set(false);}}
   iniciarCancelacion(){this.motivoCancelacion='';this.errorDetalle.set('');this.modoDetalle.set('cancelar');}
   async confirmarCancelacion(){const c=this.detalle();this.guardandoDetalle.set(true);this.errorDetalle.set('');try{
     await firstValueFrom(this.api.post(`/citas/${c.id}/cancelar`,{motivo:this.motivoCancelacion.trim()}));
-    this.toast.exito('Cita cancelada.');this.detalle.set(null);await this.cargar();
+    this.toast.exito('Cita cancelada.');this.detalle.set(null);await this.cargar();this.resaltar(c.id);
   }catch(e){this.errorDetalle.set(mensajeDeError(e,'No se pudo cancelar.'));}finally{this.guardandoDetalle.set(false);}}
 }

@@ -265,6 +265,15 @@ Revisado contra el tablero y las tareas del Sprint 2 el 2026-10-08.
   está en la base desde "Métodos de pago"; si no hay QR, la web lo oculta. El
   "número de operación" es obligatorio: Yape personal no avisa a la web, y
   recepción lo usa para verificar el pago (y la base impide repetirlo).
+- HU-008/HU-009 (en "QA / Revisión" de Trello): la disponibilidad se valida en la
+  API con índices únicos (un **veterinario** o una **mascota** no puede tener dos
+  citas a la misma hora → 409 "El veterinario ya tiene una cita en ese
+  horario"; dos veterinarios distintos sí pueden atender a la misma hora).
+  Probado en producción el 2026-10-14 (agendar el 15 a las 08:00 dos veces con
+  el mismo veterinario: la segunda, 409; la cita de prueba quedó cancelada).
+  Desde ese día la web muestra las horas ocupadas **bloqueadas ("· ocupado")** en
+  Agendar y Reprogramar, y resalta 4 s la cita agendada, reprogramada o
+  cancelada en el calendario (que ya se recargaba solo).
 - HU-021 triage: "agendar" deriva a WhatsApp (la API no deja agendar al cliente).
   No hay bot de WhatsApp: ningún texto lo pide.
 - ❌ HU-019 pasarela: solo existe la simulada (en producción responde 503, y la
