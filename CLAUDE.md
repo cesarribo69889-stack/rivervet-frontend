@@ -224,6 +224,11 @@ Registrada y verificada en Google Search Console; indexada desde el 2026-10-09.
 
 ## Lo que Claude no puede hacer (lo bloquea su sistema de permisos)
 
+**Pedido del usuario (2026-10-14): Claude NO toca la base de datos de
+producción** (ni consultas, ni datos de prueba, ni el firewall de Azure SQL).
+Si hace falta ver o cambiar algo, darle el comando SQL o el script y que lo
+ejecute él (p. ej. en el Editor de consultas del portal de Azure).
+
 Darle al usuario el comando o script listo para que lo corra él:
 - Escribir secretos en GitHub (`gh secret set`) o hacer públicos los repos.
 - Cambiar datos de producción por `sqlcmd` (DELETE/UPDATE).
