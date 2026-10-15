@@ -286,7 +286,14 @@ Revisado contra el tablero y las tareas del Sprint 2 el 2026-10-08.
   clínica contrate un proveedor (Culqi, Niubiz, Izipay o Mercado Pago). Está
   en el Product Backlog, no en el Sprint 2. Una cuenta bancaria o CCI NO sirve
   para cobrar tarjetas (solo transferencias); el usuario descartó por ahora
-  agregar "Transferencia bancaria".
+  agregar "Transferencia bancaria". El 2026-10-15 el usuario quiso dejarlo "fijo"
+  y luego lo **pospuso**. Plan acordado para cuando se retome: **Mercado Pago**
+  (Checkout Pro, abre en el día y acepta persona natural) → falta decidir a nombre
+  de quién va la cuenta (Rivelino/clínica o el usuario) → Claude programa el
+  adaptador `IPasarelaPagos` (la simulada está bloqueada en producción por
+  `ValidadorConfiguracion`) → prueba con credenciales de prueba → credenciales
+  reales (el usuario las carga con un script que se las pide) → un pago real
+  pequeño para confirmar.
 
 Extras que no pide ninguna HU, hechos a pedido del usuario (2026-10-08 al 11):
 "Métodos de pago" (Yape editable desde el panel), eliminar productos en el
